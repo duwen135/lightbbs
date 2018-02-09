@@ -5,7 +5,7 @@ __author__ = 'duwen'
 import os
 from lightbbs import create_app, db
 from lightbbs.models.user import User
-from lightbbs.models.group import Group
+from lightbbs.models.role import Role
 from lightbbs.models.node import Node
 from lightbbs.models.topic import Topic
 from lightbbs.models.tag import Tag
@@ -28,7 +28,7 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 def make_shell_context():
-    return dict(app=app, db=db, User=User, Group=Group, Node=Node, Topic=Topic, \
+    return dict(app=app, db=db, User=User, Role=Role, Node=Node, Topic=Topic, \
                 Tag=Tag, Tags_relation=Tags_relation, Comment=Comment, Message= Message, \
                 Message_dialog=Message_dialog, Page=Page, Favorite=Favorite, Follow=Follow, \
                 Notification=Notification, Link=Link, Setting=Setting, Stat=Stat)
