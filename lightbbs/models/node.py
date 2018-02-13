@@ -14,3 +14,5 @@ class Node(db.Model):
     ico = db.Column(db.String(64))
     master_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'))
     topic_num = db.Column(db.Integer)
+
+    topics = db.relationship('Topic', backref='node', lazy='dynamic')

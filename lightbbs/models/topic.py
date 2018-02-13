@@ -10,7 +10,7 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     node_id = db.Column(db.Integer, db.ForeignKey('lb_nodes.id'))
     sender_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'))
-    reply_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'))
+    last_reply_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'))
     title = db.Column(db.String(64))
     keywords = db.Column(db.String(64))
     content = db.Column(db.Text)
@@ -24,3 +24,7 @@ class Topic(db.Model):
     is_top = db.Column(db.Boolean)
     is_hidden = db.Column(db.Boolean)
     ord = db.Column(db.Integer)
+
+    comments = db.relationship('Comment', backref='topic', lazy='dynamic')
+    favorites = db.relationship('Favorite', backref='topic', lazy='dynamic')
+    notifications = db.relationship('Notification', backref='topic', lazy='dynamic')

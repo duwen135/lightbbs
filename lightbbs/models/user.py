@@ -4,6 +4,10 @@ __author__ = 'duwen'
 from flask_login import UserMixin
 from lightbbs import db
 from datetime import datetime
+from .follow import Follow
+from .message import Message
+from .message_dialog import Message_dialog
+from .notification import Notification
 
 class User(UserMixin,db.Model):
     __tablename__ = 'lb_users'
@@ -38,10 +42,26 @@ class User(UserMixin,db.Model):
 
     #外键&关系
     role_id = db.Column(db.Integer, db.ForeignKey('lb_roles.id'))
+
     nodes = db.relationship('Node', backref='master', lazy='dynamic')
-    topics = db.relationship('Topic', backref='user', lazy='dynamic')
+    topics_sender = db.relationship('Topic', backref='topic_sender', lazy='dynamic')
+    topic_last_replies = db.relationship('Topic', backref='topic_last_remly', lazy='dynamic')
     comments = db.relationship('Comment', backref='user', lazy='dynamic')
     favorites = db.relationship('Favorite', backref='user', lazy='dynamic')
-    follower = db.relationship('Follow', backref=db.backref('followed', lazy='joined'), lazy='dynamic')
-    followed = db.relationship('Follow', backref=db.backref('follower', lazy='joined'), lazy='dynamic')
+    follower = db.relationship('Follow', foreign_keys=[Follow.followed_id],
+                               backref=db.backref('followed', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
+    followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
+    senders = db.relationship('Message', foreign_keys=[Message.sender_id],
+                              backref=db.backref('sender', lazy='joined'), lazy='dynamic')
+    receivers = db.relationship('Message', foreign_keys=[Message.receiver_id],
+                                backref=db.backref('receiver', lazy='joined'), lazy='dynamic')
+    dialog_senders = db.relationship('Message_dialog', foreign_keys=[Message_dialog.sender_id],
+                                     backref=db.backref('sender', lazy='joined'), lazy='dynamic')
+    dialog_receivers = db.relationship('Message_dialog', foreign_keys=[Message_dialog.receiver_id],
+                                     backref=db.backref('receiver', lazy='joined'), lazy='dynamic')
+    comments_by = db.relationship('Notification', foreign_keys=[Notification.comment_by],
+                                  backref=db.backref('comment_by', lazy='joined'), lazy='dynamic')
+    topics_sender_id = db.relationship('Notification', foreign_keys=[Notification.topic_sender_id],
+                                       backref=db.backref('topic_sender_id', lazy='joined'), lazy='dynamic')
 

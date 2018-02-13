@@ -18,3 +18,5 @@ class Message_dialog(db.Model):
     sender_read = db.Column(db.Boolean)
     recerver_read = db.Column(db.Boolean)
     message_num = db.Column(db.Integer)
+
+    messages = db.relationship('Message', backref='dialog', lazy='dynamic')
