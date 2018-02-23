@@ -1,0 +1,12 @@
+您好 {{ user.username }},
+
+欢迎加入 Lightbbs!
+
+要确认您的帐户，请点击以下链接:
+
+{{ url_for('auth.confirm', token=token, _external=True) }}
+
+真诚的谢谢您,
+
+Lightbbs 团队
+
