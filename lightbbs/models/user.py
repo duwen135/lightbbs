@@ -20,32 +20,32 @@ class User(UserMixin,db.Model):
     __tablename__ = 'lb_users'
     # 基本信息
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(64), unique=True, index=True)
-    username = db.Column(db.String(64), unique=True, index=True)
-    password_hash = db.Column(db.String(128))
-    avatar = db.Column(db.String(64))
-    avatar_hash = db.Column(db.String(64))
-    homepage = db.Column(db.String(64))
-    location = db.Column(db.String(64))
-    signature = db.Column(db.Text)
-    about_me = db.Column(db.Text)
+    email = db.Column(db.String(64), unique=True, index=True) #邮箱
+    username = db.Column(db.String(64), unique=True, index=True) #用户名
+    password_hash = db.Column(db.String(128)) #密码序列值
+    avatar = db.Column(db.String(64)) #头像地址
+    avatar_hash = db.Column(db.String(64)) #头像序列值
+    homepage = db.Column(db.String(64)) #用户网站
+    location = db.Column(db.String(64)) #用户地址
+    signature = db.Column(db.Text) #签名
+    about_me = db.Column(db.Text) #关于我
 
     # 统计信息
-    topic_num = db.Column(db.Integer)
-    replie_num = db.Column(db.Integer)
-    notice_num = db.Column(db.Integer)
-    follow_num = db.Column(db.Integer)
-    faorite_num = db.Column(db.Integer)
-    messages_unread = db.Column(db.Integer)
-    integral = db.Column(db.Integer)
+    topic_num = db.Column(db.Integer) #该用户发布的话题数量
+    replie_num = db.Column(db.Integer) #该用户的回复数量
+    notice_num = db.Column(db.Integer) #该用户的通知数量
+    follow_num = db.Column(db.Integer) #该用户的粉丝数量
+    faorite_num = db.Column(db.Integer) #该用户收藏的话题数量
+    messages_unread = db.Column(db.Integer) #未读信息数量
+    integral = db.Column(db.Integer) #积分
 
     #更多信息
-    confirmed = db.Column(db.Boolean, default=False)
-    regtime = db.Column(db.DateTime, default=datetime.utcnow())
-    lastlogin = db.Column(db.DateTime, default=datetime.utcnow())
-    lastpost = db.Column(db.DateTime,default=datetime.utcnow())
-    ip = db.Column(db.String(64))
-    is_active = db.Column(db.Boolean)
+    confirmed = db.Column(db.Boolean, default=False) #该用户是否认证
+    regtime = db.Column(db.DateTime, default=datetime.utcnow()) #该用户的注册时间
+    lastlogin = db.Column(db.DateTime, default=datetime.utcnow()) #该用户最后的登录时间
+    lastpost = db.Column(db.DateTime,default=datetime.utcnow()) #该用户最后发布话题时间
+    ip = db.Column(db.String(64)) #该用户的ip地址
+    is_active = db.Column(db.Boolean) #该用户是否激活
 
     #外键&关系
     role_id = db.Column(db.Integer, db.ForeignKey('lb_roles.id'))
