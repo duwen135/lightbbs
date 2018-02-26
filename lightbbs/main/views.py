@@ -20,7 +20,7 @@ def index():
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         topic = Topic(body=form.body.data,
-                    author=current_user._get_current_object())
+                      sender_id=current_user._get_current_object())
         db.session.add(topic)
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
