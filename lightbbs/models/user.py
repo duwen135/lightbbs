@@ -13,7 +13,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for, request
 from lightbbs.models.role import Role, Permission
 import hashlib
-
+from ..models.topic import Topic
 
 
 class User(UserMixin,db.Model):
@@ -41,11 +41,11 @@ class User(UserMixin,db.Model):
 
     #更多信息
     confirmed = db.Column(db.Boolean, default=False) #该用户是否认证
-    regtime = db.Column(db.DateTime, default=datetime.utcnow()) #该用户的注册时间
-    lastlogin = db.Column(db.DateTime, default=datetime.utcnow()) #该用户最后的登录时间
-    lastpost = db.Column(db.DateTime,default=datetime.utcnow()) #该用户最后发布话题时间
+    regtime = db.Column(db.DateTime, default=datetime.utcnow) #该用户的注册时间
+    lastlogin = db.Column(db.DateTime, default=datetime.utcnow) #该用户最后的登录时间
+    lastpost = db.Column(db.DateTime,default=datetime.utcnow) #该用户最后发布话题时间
     ip = db.Column(db.String(64)) #该用户的ip地址
-    is_active = db.Column(db.Boolean) #该用户是否激活
+    is_active = db.Column(db.Boolean, default=True) #该用户是否激活
 
     #外键&关系
     role_id = db.Column(db.Integer, db.ForeignKey('lb_roles.id'))
@@ -59,19 +59,20 @@ class User(UserMixin,db.Model):
                                backref=db.backref('followed', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
     followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
-    senders = db.relationship('Message', foreign_keys=[Message.sender_id],
+    sender_messages = db.relationship('Message', foreign_keys=[Message.sender_id],
                               backref=db.backref('sender', lazy='joined'), lazy='dynamic')
-    receivers = db.relationship('Message', foreign_keys=[Message.receiver_id],
+    receiver_messages = db.relationship('Message', foreign_keys=[Message.receiver_id],
                                 backref=db.backref('receiver', lazy='joined'), lazy='dynamic')
-    dialog_senders = db.relationship('Message_dialog', foreign_keys=[Message_dialog.sender_id],
+    sender_dialogs = db.relationship('Message_dialog', foreign_keys=[Message_dialog.sender_id],
                                      backref=db.backref('sender', lazy='joined'), lazy='dynamic')
-    dialog_receivers = db.relationship('Message_dialog', foreign_keys=[Message_dialog.receiver_id],
+    receiver_dialogs = db.relationship('Message_dialog', foreign_keys=[Message_dialog.receiver_id],
                                      backref=db.backref('receiver', lazy='joined'), lazy='dynamic')
     comments_by = db.relationship('Notification', foreign_keys=[Notification.comment_by],
                                   backref=db.backref('comment_by', lazy='joined'), lazy='dynamic')
     topics_sender_id = db.relationship('Notification', foreign_keys=[Notification.topic_sender_id],
                                        backref=db.backref('topic_sender_id', lazy='joined'), lazy='dynamic')
 
+    #生成虚拟用户
     @staticmethod
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
@@ -84,16 +85,19 @@ class User(UserMixin,db.Model):
                      username=forgery_py.internet.user_name(True),
                      password=forgery_py.lorem_ipsum.word(),
                      confirmed=True,
-                     name=forgery_py.name.full_name(),
+                     hompage=forgery_py.internet.domain_name(),
                      location=forgery_py.address.city(),
-                     about_me=forgery_py.lorem_ipsum.sentence(),
-                     member_since=forgery_py.date.date(True))
+                     signature=forgery_py.lorem_ipsum.sentence(),
+                     about_me=forgery_py.lorem_ipsum.paragraph(),
+                     regtime=forgery_py.date.datetime(True),
+                     ip=forgery_py.internet.ip_v4())
             db.session.add(u)
             try:
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
 
+    #用户自关注
     @staticmethod
     def add_self_follows():
         for user in User.query.all():
@@ -102,10 +106,11 @@ class User(UserMixin,db.Model):
                 db.session.add(user)
                 db.session.commit()
 
+    #初始化用户角色和头像
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
         if self.role is None:
-            if self.email == current_app.config['FLASKAPP_ADMIN']:
+            if self.email == current_app.config['LIGHTBBS_ADMIN']:
                 self.role = Role.query.filter_by(permissions=0xff).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
@@ -113,10 +118,12 @@ class User(UserMixin,db.Model):
             self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         self.followed.append(Follow(followed=self))
 
+    #登录回调
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    #密码的只写属性、验证密码
     @property
     def password(self):
         raise ArithmeticError('密码属性不可访问')
@@ -128,6 +135,8 @@ class User(UserMixin,db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+
+    #生成认证码、认证函数
     def generate_confirmation_token(self, expirathon=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expirathon)
         return s.dumps({'confirm':self.id})
@@ -144,6 +153,7 @@ class User(UserMixin,db.Model):
         db.session.add(self)
         return True
 
+    #重设密码的生成认证码和认证函数
     def generate_reset_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'reset': self.id})
@@ -160,6 +170,7 @@ class User(UserMixin,db.Model):
         db.session.add(self)
         return True
 
+    #修改邮箱的生成认证码和认证函数
     def generate_email_change_token(self, new_email, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'change_email': self.id, 'new_email': new_email})
@@ -182,6 +193,7 @@ class User(UserMixin,db.Model):
         db.session.add(self)
         return True
 
+    #权限判断函数和管理员账户判断函数
     def can(self, permissions):
         return self.role is not None and \
                (self.role.permissions & permissions) == permissions
@@ -189,10 +201,12 @@ class User(UserMixin,db.Model):
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
+    #更新用户最近登录时间
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
 
+    #用户头像生成
     def gravatar(self, size=100, default='identicon', rating='g'):
         if request.is_secure:
             url = 'https://secure.gravatar.com/avatar'
@@ -203,6 +217,7 @@ class User(UserMixin,db.Model):
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
 
+    #用户关注、取消关注、是否关注中、是否被关注
     def follow(self, user):
         if not self.is_following(user):
             f = Follow(follower=self, followed=user)
@@ -221,17 +236,18 @@ class User(UserMixin,db.Model):
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
 
+    #关注用户的文章
     @property
     def followed_posts(self):
-        return Post.query.join(Follow, Follow.followed_id == Post.author_id) \
+        return Topic.query.join(Follow, Follow.followed_id == Topic.sender_id) \
             .filter(Follow.follower_id == self.id)
 
     def to_json(self):
         json_user = {
             'url': url_for('api.get_user', id=self.id, _external=True),
             'username': self.username,
-            'member_since': self.member_since,
-            'last_seen': self.last_seen,
+            'regtime': self.regtime,
+            'lastlogin': self.lastlogin,
             'posts': url_for('api.get_user_posts', id=self.id, _external=True),
             'followed_posts': url_for('api.get_user_followed_posts',
                                       id=self.id, _external=True),
@@ -239,6 +255,7 @@ class User(UserMixin,db.Model):
         }
         return json_user
 
+    #生成认证口令和验证认证口令
     def generate_auth_token(self, expiration):
         s = Serializer(current_app.config['SECRET_KEY'],
                        expires_in=expiration)
