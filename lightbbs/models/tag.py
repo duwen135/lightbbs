@@ -15,4 +15,4 @@ class Tag(db.Model):
     tag_name = db.Column(db.String(64))
     topic_num = db.Column(db.Integer)
 
-    tags = db.relationship('Tags_relation', secondary=tags_relation, backref='tag', lazy='dynamic')
+    topics = db.relationship('Tags_relation', secondary=tags_relation, backref='tag', lazy='dynamic')

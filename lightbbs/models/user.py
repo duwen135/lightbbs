@@ -11,9 +11,9 @@ from .notification import Notification
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for, request
-from lightbbs.models.role import Role, Permission
+from .role import Role, Permission
 import hashlib
-from ..models.topic import Topic
+
 
 
 class User(UserMixin,db.Model):
@@ -238,10 +238,11 @@ class User(UserMixin,db.Model):
 
     #关注用户的文章
     @property
-    def followed_posts(self):
+    def followed_topics(self):
+        from .topic import Topic
         return Topic.query.join(Follow, Follow.followed_id == Topic.sender_id) \
             .filter(Follow.follower_id == self.id)
-
+    '''
     def to_json(self):
         json_user = {
             'url': url_for('api.get_user', id=self.id, _external=True),
@@ -254,7 +255,7 @@ class User(UserMixin,db.Model):
             'post_count': self.posts.count()
         }
         return json_user
-
+    '''
     #生成认证口令和验证认证口令
     def generate_auth_token(self, expiration):
         s = Serializer(current_app.config['SECRET_KEY'],

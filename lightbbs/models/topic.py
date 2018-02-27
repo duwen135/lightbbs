@@ -5,9 +5,10 @@ from lightbbs import db
 from datetime import datetime
 from lightbbs.exceptions import ValidationError
 from flask import url_for
-from markdown import markdown
-import bleach
-from lightbbs.models.user import User
+from .user import User
+#from markdown import markdown
+#import bleach
+
 
 
 class Topic(db.Model):
@@ -50,7 +51,7 @@ class Topic(db.Model):
             db.session.add(t)
             db.session.commit()
 
-
+    '''
     def to_json(self):
         json_topic = {
             'url': url_for('api.get_post', id=self.id, _external=True),
@@ -63,11 +64,11 @@ class Topic(db.Model):
             'comment_count': self.comments.count()
         }
         return json_topic
-
+    
     @staticmethod
     def from_json(json_topic):
         content = json_topic.get('content')
         if content is None or content == '':
             raise ValidationError('文章没有内容。')
         return Topic(content=content)
-
+    '''

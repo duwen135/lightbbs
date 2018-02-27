@@ -10,4 +10,4 @@ class Follow(db.Model):
     follower_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'), primary_key=True)
     followed_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'), primary_key=True)
     is_follow = db.Column(db.Boolean)
-    time_stamp = db.Column(db.DateTime, default=datetime.utcnow())
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow())

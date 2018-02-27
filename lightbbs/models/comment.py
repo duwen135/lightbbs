@@ -17,14 +17,7 @@ class Comment(db.Model):
     content = db.Column(db.Text)
     time = db.Column(db.DateTime, default=datetime.utcnow())
 
-    @staticmethod
-    def on_changed_body(target, value, oldvalue, initiator):
-        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'i',
-                        'strong']
-        target.body_html = bleach.linkify(bleach.clean(
-            markdown(value, output_format='html'),
-            tags=allowed_tags, strip=True))
-
+    '''
     def to_json(self):
         json_comment = {
             'url': url_for('api.get_comment', id=self.id, _external=True),
@@ -43,6 +36,6 @@ class Comment(db.Model):
         if body is None or body == '':
             raise ValidationError('comment does not have a body')
         return Comment(body=body)
+    '''
 
 
-db.event.listen(Comment.body, 'set', Comment.on_changed_body)
