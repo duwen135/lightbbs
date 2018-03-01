@@ -20,7 +20,7 @@
         <li{% if show_followed %} class="active"{% endif %}><a href="{{ url_for('.show_followed') }}">Followers</a></li>
         {% endif %}
     </ul>
-    {% include '_posts.html' %}
+    {% include '_topics.html' %}
 </div>
 {% if pagination %}
 <div class="pagination">

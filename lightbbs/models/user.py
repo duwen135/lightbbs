@@ -13,7 +13,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, url_for, request
 from .role import Role, Permission
 import hashlib
-
+from .topic import Topic
 
 
 class User(UserMixin,db.Model):
@@ -42,8 +42,8 @@ class User(UserMixin,db.Model):
     #更多信息
     confirmed = db.Column(db.Boolean, default=False) #该用户是否认证
     regtime = db.Column(db.DateTime, default=datetime.utcnow) #该用户的注册时间
-    lastlogin = db.Column(db.DateTime, default=datetime.utcnow) #该用户最后的登录时间
-    lastpost = db.Column(db.DateTime,default=datetime.utcnow) #该用户最后发布话题时间
+    lastlogin = db.Column(db.DateTime) #该用户最后的登录时间
+    lastpost = db.Column(db.DateTime) #该用户最后发布话题时间
     ip = db.Column(db.String(64)) #该用户的ip地址
     is_active = db.Column(db.Boolean, default=True) #该用户是否激活
 
@@ -51,8 +51,8 @@ class User(UserMixin,db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('lb_roles.id'))
 
     nodes = db.relationship('Node', backref='master', lazy='dynamic')
-    topics_sender = db.relationship('Topic', backref='topic_sender', lazy='dynamic')
-    topic_last_replies = db.relationship('Topic', backref='topic_last_remly', lazy='dynamic')
+    sender_topics = db.relationship('Topic', foreign_keys=[Topic.sender_id], backref='sender', lazy='dynamic')
+    last_topic_replies = db.relationship('Topic',foreign_keys=[Topic.last_reply_id], backref='remly', lazy='dynamic')
     comments = db.relationship('Comment', backref='user', lazy='dynamic')
     favorites = db.relationship('Favorite', backref='user', lazy='dynamic')
     follower = db.relationship('Follow', foreign_keys=[Follow.followed_id],
@@ -68,9 +68,9 @@ class User(UserMixin,db.Model):
     receiver_dialogs = db.relationship('Message_dialog', foreign_keys=[Message_dialog.receiver_id],
                                      backref=db.backref('receiver', lazy='joined'), lazy='dynamic')
     comments_by = db.relationship('Notification', foreign_keys=[Notification.comment_by],
-                                  backref=db.backref('comment_by', lazy='joined'), lazy='dynamic')
+                                  backref=db.backref('commenter', lazy='joined'), lazy='dynamic')
     topics_sender_id = db.relationship('Notification', foreign_keys=[Notification.topic_sender_id],
-                                       backref=db.backref('topic_sender_id', lazy='joined'), lazy='dynamic')
+                                       backref=db.backref('sender', lazy='joined'), lazy='dynamic')
 
     #生成虚拟用户
     @staticmethod
@@ -85,7 +85,7 @@ class User(UserMixin,db.Model):
                      username=forgery_py.internet.user_name(True),
                      password=forgery_py.lorem_ipsum.word(),
                      confirmed=True,
-                     hompage=forgery_py.internet.domain_name(),
+                     homepage=forgery_py.internet.domain_name(),
                      location=forgery_py.address.city(),
                      signature=forgery_py.lorem_ipsum.sentence(),
                      about_me=forgery_py.lorem_ipsum.paragraph(),
@@ -239,9 +239,8 @@ class User(UserMixin,db.Model):
     #关注用户的文章
     @property
     def followed_topics(self):
-        from .topic import Topic
-        return Topic.query.join(Follow, Follow.followed_id == Topic.sender_id) \
-            .filter(Follow.follower_id == self.id)
+        #from .topic import Topic
+        return Topic.query.join(Follow, Follow.followed_id == Topic.sender_id).filter(Follow.follower_id == self.id)
     '''
     def to_json(self):
         json_user = {
@@ -255,6 +254,7 @@ class User(UserMixin,db.Model):
             'post_count': self.posts.count()
         }
         return json_user
+    '''
     '''
     #生成认证口令和验证认证口令
     def generate_auth_token(self, expiration):
@@ -270,6 +270,7 @@ class User(UserMixin,db.Model):
         except:
             return None
         return User.query.get(data['id'])
+    '''
 
     def __repr__(self):
         return '<User %r>' % self.username

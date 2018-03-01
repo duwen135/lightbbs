@@ -17,6 +17,25 @@ class Comment(db.Model):
     content = db.Column(db.Text)
     time = db.Column(db.DateTime, default=datetime.utcnow())
 
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+        from .user import User
+        from .topic import Topic
+
+        seed()
+        user_count = User.query.count()
+        topic_count = Topic.query.count()
+        for i in range(count):
+            u = User.query.offset(randint(0, user_count)).first()
+            t = Topic.query.offset(randint(0, topic_count)).first()
+            c = Comment(topic_id=t,
+                      user_id=u,
+                      content=forgery_py.lorem_ipsum.paragraph())
+            db.session.add(c)
+            db.session.commit()
+
     '''
     def to_json(self):
         json_comment = {

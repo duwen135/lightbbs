@@ -81,7 +81,7 @@ def user_list():
     return render_template('users.html', new_users=new_users, hot_users=hot_users)
 
 
-@main.route('/user/<username>')
+@main.route('/users/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
@@ -157,6 +157,7 @@ def tag(tag_name):
     return render_template('tag.html', tag=tag, topics=topics, pagination=pagination)
 
 #话题部分
+
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -166,11 +167,11 @@ def edit(id):
         abort(403)
     form = TopicForm()
     if form.validate_on_submit():
-        topic.body = form.body.data
+        topic.content = form.content.data
         db.session.add(topic)
         flash('这篇文章已经更新了。')
         return redirect(url_for('.topic', id=topic.id))
-    form.body.data = topic.body
+    form.content.data = topic.content
     return render_template('edit_topic.html', form=form)
 
 #评论部分

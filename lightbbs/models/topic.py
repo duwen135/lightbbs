@@ -5,7 +5,7 @@ from lightbbs import db
 from datetime import datetime
 from lightbbs.exceptions import ValidationError
 from flask import url_for
-from .user import User
+#from .user import User
 #from markdown import markdown
 #import bleach
 
@@ -21,8 +21,8 @@ class Topic(db.Model):
     keywords = db.Column(db.String(64)) #话题关键词
     content = db.Column(db.Text) #话题内容
     addtime = db.Column(db.DateTime, default=datetime.utcnow()) #发布时间
-    update_time = db.Column(db.DateTime, default=datetime.utcnow()) #更新时间
-    last_reply = db.Column(db.DateTime, default=datetime.utcnow()) #最近回复时间
+    update_time = db.Column(db.DateTime) #更新时间
+    last_reply = db.Column(db.DateTime) #最近回复时间
     views = db.Column(db.Integer) #话题浏览量
     comment_num = db.Column(db.Integer) #评论数量
     favorite_num = db.Column(db.Integer) #收藏数量
@@ -39,14 +39,19 @@ class Topic(db.Model):
     def generate_fake(count=100):
         from random import seed, randint
         import forgery_py
+        from .user import User
+        from .node import Node
 
         seed()
         user_count = User.query.count()
+        node_count = Node.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, user_count - 1)).first()
+            n = Node.query.offset(randint(0, node_count)).first()
             t = Topic(title=forgery_py.lorem_ipsum.title(),
                       content=forgery_py.lorem_ipsum.paragraphs(randint(1, 5)),
                       addtime=forgery_py.date.date(True),
+                      node_id=n,
                       sender_id=u)
             db.session.add(t)
             db.session.commit()

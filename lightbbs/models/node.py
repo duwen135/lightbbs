@@ -16,3 +16,27 @@ class Node(db.Model):
     topic_num = db.Column(db.Integer)
 
     topics = db.relationship('Topic', backref='node', lazy='dynamic')
+
+    # 生成虚拟用户
+    @staticmethod
+    def generate_fake(count=10):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed, randint
+        import forgery_py
+        from .user import User
+
+        seed()
+        user_count = User.query.count()
+        node_count = Node.query.count()
+        for i in range(count):
+            nd = Node.query.offset(randint(0, node_count)).first()
+            u = User.query.offset(randint(0, user_count - 1)).first()
+            n = Node(parent_id=nd,
+                     name=forgery_py.lorem_ipsum.word(),
+                     content=forgery_py.lorem_ipsum.paragraph(),
+                     master_id=u)
+            db.session.add(n)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
