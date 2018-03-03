@@ -31,10 +31,16 @@ class Node(db.Model):
         for i in range(count):
             nd = Node.query.offset(randint(0, node_count)).first()
             u = User.query.offset(randint(0, user_count - 1)).first()
-            n = Node(parent_id=nd.id,
-                     name=forgery_py.lorem_ipsum.word(),
-                     content=forgery_py.lorem_ipsum.paragraph(),
-                     master=u)
+            if nd:
+                n = Node(parent_id=nd.id,
+                         name=forgery_py.lorem_ipsum.word(),
+                         content=forgery_py.lorem_ipsum.paragraph(),
+                         master=u)
+            else:
+                n = Node(name=forgery_py.lorem_ipsum.word(),
+                         content=forgery_py.lorem_ipsum.paragraph(),
+                         master=u)
+
             db.session.add(n)
             try:
                 db.session.commit()

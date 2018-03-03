@@ -51,8 +51,8 @@ class Topic(db.Model):
             t = Topic(title=forgery_py.lorem_ipsum.title(),
                       content=forgery_py.lorem_ipsum.paragraphs(randint(1, 5)),
                       addtime=forgery_py.date.date(True),
-                      node_id=n,
-                      sender_id=u)
+                      node=n,
+                      sender=u)
             db.session.add(t)
             db.session.commit()
 

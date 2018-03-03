@@ -26,7 +26,7 @@ class Tag(db.Model):
 
         seed()
         for i in range(count):
-            tg = Tag(tog_name=forgery_py.lorem_ipsum.word())
+            tg = Tag(tag_name=forgery_py.lorem_ipsum.word())
             db.session.add(tg)
             try:
                 db.session.commit()

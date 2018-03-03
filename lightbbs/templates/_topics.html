@@ -22,10 +22,10 @@
                     <span class="label label-danger">Edit [Admin]</span>
                 </a>
                 {% endif %}
-                <a href="{{ url_for('.post', id=topic.id) }}">
+                <a href="{{ url_for('.topic', id=topic.id) }}">
                     <span class="label label-default">Permalink</span>
                 </a>
-                <a href="{{ url_for('.post', id=topic.id) }}#comments">
+                <a href="{{ url_for('.topic', id=topic.id) }}#comments">
                     <span class="label label-primary">{{ topic.comments.count() }} Comments</span>
                 </a>
             </div>

@@ -30,8 +30,8 @@ class Comment(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, user_count)).first()
             t = Topic.query.offset(randint(0, topic_count)).first()
-            c = Comment(topic_id=t,
-                      user_id=u,
+            c = Comment(topic=t,
+                      user=u,
                       content=forgery_py.lorem_ipsum.paragraph())
             db.session.add(c)
             db.session.commit()
