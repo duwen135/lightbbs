@@ -7,11 +7,12 @@
             </a>
         </div>
         <div class="post-content">
-            <div class="post-date">{{ moment(topic.addtime).fromNow() }}</div>
-            <div class="post-author"><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></div>
             <div class="post-body">
-                {{ topic.content }}
+                {{ topic.title }}
             </div>
+            <div class="post-date">{{ moment(topic.addtime).fromNow() }}</div>
+            <div class="post-author"><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.node.name }}</a></div>
+            <div class="post-author"><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></div>
             <div class="post-footer">
                 {% if current_user == topic.sender %}
                 <a href="{{ url_for('.edit', id=topic.id) }}">
