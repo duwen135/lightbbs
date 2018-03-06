@@ -1,8 +1,62 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky - Post{% endblock %}
+{% block title %}{{ topic.title }}{% endblock %}
 
-{% block page_content %}
-{% include '_topics.html' %}
+{% block left %}
+<div class="panel">
+    <div class="panel-heading">
+        ..
+        <div class="pull-right"><a href="{{ url_for('.user', username=topic.sender.username) }}"><img src="{{ topic.sender.gravatar(size=40) }}" alt="{{ topic.sender.username }}"></a></div>
+        <p><a href="{{ url_for('main.index') }}">首页</a> / <a href="{{ url_for('.node', name=topic.node.name) }}">{{ topic.node.name }}</a></p>
+        <h2 class="panel-title">{{ topic.title }}</h2>
+        <small class="text-muted">
+            <span>By <a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>&nbsp;•&nbsp;
+            <span>{{ topic.addtime }}</span>&nbsp;•&nbsp;
+            <span>{{ topic.views }}次点击</span>
+            <!--<?php if($this->session->userdata('uid')){?>
+            <span>• <a href="javascript:void(0)" class="reply">回复</a></span>
+            <?php if($in_favorites){?>
+            <span><a href="<?php echo site_url('favorites/del/'.$content['topic_id']);?>" title="取消收藏">取消收藏</a></span>
+            <?php } else {?>
+            <span><a href="<?php echo site_url('favorites/add/'.$content['topic_id']);?>" title="点击收藏">收藏</a></span>
+            <?php } ?>
+            <?php } ?>-->
+        </small>
+        ..
+    </div>
+    <div class="panel-body">
+        ..
+        <div class="panel-body content">
+            {{ topic.content }}
+            {% if topic.tags %}
+            <p class="tag">
+                {% for tag in topic.tags %}
+                <a href="{{ url_for('.tag', tagname=tag.id) }}">{{ topic.tags.tag_name }}</a>&nbsp;
+                {% endfor %}
+            </p>
+            {% endif %}
+
+        </div>
+        ..
+    </div>
+        <div class="panel-footer">
+            ..
+            <!--<?php if($this->auth->is_user($content['uid']) || $this->auth->is_admin() || $this->auth->is_master($cate['node_id'])){?>
+
+            <a href="<?php echo site_url('topic/edit/'.$content['topic_id']);?>" class="btn btn-default btn-sm unbookmark" data-method="edit" rel="nofollow">编辑</a>
+            <a href="javascript:if(confirm('确实要删除吗?'))location='<?php echo site_url('topic/del/'.$content['topic_id'].'/'.$content['node_id'].'/'.$content['uid']);?>'" class="btn btn-sm btn-danger" data-method="edit" rel="nofollow">删除</a>
+            <?php }?>
+            <?php if($this->auth->is_admin() || $this->auth->is_master($cate['node_id'])){?>
+            <a href="<?php echo site_url('topic/show/'.$content['topic_id'].'?act=set_top');?>" class="btn btn-default btn-sm unbookmark" data-method="edit" rel="nofollow">
+                <?php if($content['is_top']==0){?>
+                置顶
+                <?php } else {?>
+                取消置顶
+                <?php }?>
+            </a>
+            <?php }?>-->
+            ..
+        </div>
+</div>
 {% endblock %}

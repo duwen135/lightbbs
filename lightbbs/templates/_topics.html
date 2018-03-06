@@ -1,36 +1,34 @@
-<ul class="posts">
+<ul class="media-list posts">
     {% for topic in topics %}
-    <li class="post">
-        <div class="post-thumbnail">
-            <a href="{{ url_for('.user', username=topic.sender.username) }}">
-                <img class="img-rounded profile-thumbnail" src="{{ topic.sender.gravatar(size=40) }}">
+    <li class="media post">
+
+        <div class="media-left">
+            <a  href="{{ url_for('.user', username=topic.sender.username) }}">
+                <img class="img-rounded" src="{{ topic.sender.gravatar(size=40) }}" alt="{{ topic.sender.username }}">
             </a>
         </div>
-        <div class="post-content">
-            <div class="post-body">
-                {{ topic.title }}
-            </div>
-            <div class="post-date">{{ moment(topic.addtime).fromNow() }}</div>
-            <div class="post-author"><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.node.name }}</a></div>
-            <div class="post-author"><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></div>
-            <div class="post-footer">
-                {% if current_user == topic.sender %}
-                <a href="{{ url_for('.edit', id=topic.id) }}">
-                    <span class="label label-primary">Edit</span>
-                </a>
-                {% elif current_user.is_administrator() %}
-                <a href="{{ url_for('.edit', id=topic.id) }}">
-                    <span class="label label-danger">Edit [Admin]</span>
-                </a>
+
+        <div class="media-body">
+            <h4 class="media-heading">
+                <a href="{{ url_for('.topic', id=topic.id) }}">{{ topic.title }}</a>
+                {% if topic.is_top %}<span class="badge badge-info">置顶</span>{% endif %}
+            </h4>
+            <p class="text-muted">
+                <span><a href="{{ url_for('.node', name=topic.node.name) }}">{{ topic.node.name }}</a></span>&nbsp;•&nbsp;
+                <span><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>&nbsp;•&nbsp;
+                <span>{{ moment(topic.addtime).fromNow() }}</span>&nbsp;•&nbsp;
+                {% if topic.remly!=NULL %}
+                <span>最后回复来自 <a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>
+                {% else %}
+                <span>暂无回复</span>
                 {% endif %}
-                <a href="{{ url_for('.topic', id=topic.id) }}">
-                    <span class="label label-default">Permalink</span>
-                </a>
-                <a href="{{ url_for('.topic', id=topic.id) }}#comments">
-                    <span class="label label-primary">{{ topic.comments.count() }} Comments</span>
-                </a>
-            </div>
+            </p>
         </div>
+
+        <div class="media-right">
+            <span class="badge badge-info"><a href="{{ url_for('.topic', id=topic.id) }}">{{ topic.comments.count() }}</a></span>
+        </div>
+
     </li>
     {% endfor %}
 </ul>

@@ -194,7 +194,7 @@ def topic(id):
         page, per_page=current_app.config['LIGHTBBS_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('topic.html', topics=[topic], form=form,
+    return render_template('topic.html', topic=[topic], form=form,
                            comments=comments, pagination=pagination)
 
 
