@@ -16,6 +16,7 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('lb_users.id'))
     content = db.Column(db.Text)
     time = db.Column(db.DateTime, default=datetime.utcnow())
+    disabled = db.Column(db.Boolean, default=False)
 
     @staticmethod
     def generate_fake(count=100):

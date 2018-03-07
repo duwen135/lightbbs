@@ -16,15 +16,8 @@ from ..models.node import Node
 from ..models.tag import Tag
 
 #首页部分
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/')
 def index():
-    form = TopicForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        topic = Topic(content=form.content.data,
-                      sender_id=current_user._get_current_object())
-        db.session.add(topic)
-        return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     show_followed = False
     if current_user.is_authenticated:
@@ -37,7 +30,7 @@ def index():
         page, per_page=current_app.config['LIGHTBBS_POSTS_PER_PAGE'],
         error_out=False)
     topics = pagination.items
-    return render_template('index.html', form=form, topics=topics,
+    return render_template('index.html', topics=topics,
                            show_followed=show_followed, pagination=pagination)
 
 #首页话题列表响应
@@ -59,8 +52,9 @@ def show_followed():
 #节点部分
 @main.route('/nodes')
 def node_list():
-    parent_nodes = Node.query.order_by(Node.parent_id).all()
-    nodes = Node.query.filter_by(parent_id = parent_nodes).all()
+    parent_nodes = Node.query.filter_by(parent_id=0).all()
+    for parent_node in parent_nodes:
+        nodes = Node.query.filter_by(parent_id=parent_node.parent_id).all()
     return render_template('nodes.html', parent_nodes=parent_nodes, nodes=nodes)
 
 @main.route('/nodes/<name>')
@@ -157,6 +151,16 @@ def tag(tag_name):
     return render_template('tag.html', tag=tag, topics=topics, pagination=pagination)
 
 #话题部分
+@main.route('/write', methods=['GET', 'POST'])
+@login_required
+def write():
+    form = TopicForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
+        topic = Topic(content=form.content.data,
+                      sender_id=current_user._get_current_object())
+        db.session.add(topic)
+    return render_template('write.html', form=form)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -194,7 +198,7 @@ def topic(id):
         page, per_page=current_app.config['LIGHTBBS_COMMENTS_PER_PAGE'],
         error_out=False)
     comments = pagination.items
-    return render_template('topic.html', topic=[topic], form=form,
+    return render_template('topic.html', topic=topic, form=form,
                            comments=comments, pagination=pagination)
 
 

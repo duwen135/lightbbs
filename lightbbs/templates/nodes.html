@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Flasky - Nodes{% endblock %}
+
+{% block left %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">待补充
+            <span class='pull-right'>话题总数<span class='badge badge-info'>&nbsp;待补充&nbsp;</span></span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        Panel content
+    </div>
+</div>
+{% for parent_node in parent_nodes %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{{ parent_node.name }}</h3>
+    </div>
+    <div class="panel-body">
+
+        <ul class="media-list">
+            {% for node in nodes %}
+            <li class="media section">
+                <div class="pull-right text-right"><p>/今日</p><p>{{ node.topics.count() }}/话题</p></div>
+                <a class="media-left" href="#"><img class="img-rounded" src="{{ node.ico }}" alt="{{ node.name }}"></a>
+                <div class="media-body">
+                    <h4 class="media-heading"><a href="{{ url_for('.node', name=node.name) }}">{{ node.name }}</a></h4>
+                    <p class="text-muted">
+                        {{ node.content }}
+                    </p>
+                    <p class="text-muted">
+                        版主:{{ node.master.username }}
+                    </p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

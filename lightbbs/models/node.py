@@ -37,7 +37,8 @@ class Node(db.Model):
                          content=forgery_py.lorem_ipsum.paragraph(),
                          master=u)
             else:
-                n = Node(name=forgery_py.lorem_ipsum.word(),
+                n = Node(parent_id=0,
+                         name=forgery_py.lorem_ipsum.word(),
                          content=forgery_py.lorem_ipsum.paragraph(),
                          master=u)
 
