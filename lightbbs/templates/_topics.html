@@ -11,7 +11,7 @@
         <div class="media-body">
             <h4 class="media-heading">
                 <a href="{{ url_for('.topic', id=topic.id) }}">{{ topic.title }}</a>
-                {% if topic.is_top %}<span class="badge badge-info">置顶</span>{% endif %}
+                {% if topic.is_top %}<span class="label label-default">置顶</span>{% endif %}
             </h4>
             <p class="text-muted">
                 <span><a href="{{ url_for('.node', name=topic.node.name) }}">{{ topic.node.name }}</a></span>&nbsp;•&nbsp;

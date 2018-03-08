@@ -54,7 +54,7 @@ def show_followed():
 def node_list():
     parent_nodes = Node.query.filter_by(parent_id=0).all()
     for parent_node in parent_nodes:
-        nodes = Node.query.filter_by(parent_id=parent_node.parent_id).all()
+        nodes = Node.query.filter_by(parent_id=parent_node.id).all()
     return render_template('nodes.html', parent_nodes=parent_nodes, nodes=nodes)
 
 @main.route('/nodes/<name>')
@@ -70,8 +70,8 @@ def node(name):
 #用户部分
 @main.route('/users')
 def user_list():
-    new_users = User.query.limit(30).order_by(User.regtime.desc()).all()
-    hot_users = User.query.limit(30).order_by(User.follow_num.desc()).all()
+    new_users = User.query.order_by(User.regtime.desc()).limit(30).all()
+    hot_users = User.query.order_by(User.follow_num.desc()).limit(30).all()
     return render_template('users.html', new_users=new_users, hot_users=hot_users)
 
 
@@ -79,14 +79,15 @@ def user_list():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    pagination = user.topics.order_by(Topic.addtime.desc()).paginate(
+    pagination = user.sender_topics.order_by(Topic.addtime.desc()).paginate(
         page, per_page=current_app.config['LIGHTBBS_POSTS_PER_PAGE'],
         error_out=False)
     topics = pagination.items
     pagination2 = user.comments.order_by(Comment.time.desc()).paginate(
         page, per_page=current_app.config['LIGHTBBS_POSTS_PER_PAGE'],
         error_out=False)
-    return render_template('user.html', user=user, topics=topics,
+    comments = pagination2.items
+    return render_template('user.html', user=user, topics=topics, comments=comments,
                            pagination=pagination, pagination2=pagination2)
 
 
@@ -137,7 +138,7 @@ def edit_profile_admin(id):
 #tag部分
 @main.route('/tags')
 def tag_list():
-    tags = Tag.query.limit(30).order_by(Tag.topic_num.desc()).all()
+    tags = Tag.query.order_by(Tag.topic_num.desc()).limit(30).all()
     return render_template('tags.html', tags=tags)
 
 @main.route('/tags/<tag_name>')

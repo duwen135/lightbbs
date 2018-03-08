@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Lightbbs - User{% endblock %}
+
+{% block left %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">最新会员</h3>
+    </div>
+    <div class="panel-body">
+        <ul class='user-list clearfix'>
+            {% for user in new_users %}
+            <li>
+                <a href="{{ url_for('.user', username=user.username) }}" title="{{ user.username }}">
+                    <img class="img-rounded" alt="{{ user.username }}" src="{{ user.gravatar(size=40) }}">
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">活跃会员</h3>
+    </div>
+    <div class="panel-body">
+        <ul class='user-list clearfix'>
+            {% for user in hot_users %}
+            <li>
+                <a href="{{ url_for('.user', username=user.username) }}" title="{{ user.username }}">
+                    <img class="img-rounded" alt="{{ user.username }}" src="{{ user.gravatar(size=40) }}">
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,3 +1,7 @@
+body{
+    background-image: url(./images/bg.jpg);
+    background-repeat: repeat-x;
+}
 .profile-thumbnail {
     position: absolute;
 }
@@ -63,4 +67,13 @@ div.flask-pagedown-preview h3 {
 .post-body h3 {
     font-size: 120%;
 }
+
+ul.user-list li{
+    text-align:center;
+    margin:0 8px 10px 0px;
+    float:left;
+    overflow:hidden;
+    font-size:12pt;
+}
+
 

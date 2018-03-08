@@ -55,9 +55,9 @@ class User(UserMixin,db.Model):
     last_topic_replies = db.relationship('Topic',foreign_keys=[Topic.last_reply_id], backref='remly', lazy='dynamic')
     comments = db.relationship('Comment', backref='user', lazy='dynamic')
     favorites = db.relationship('Favorite', backref='user', lazy='dynamic')
-    follower = db.relationship('Follow', foreign_keys=[Follow.followed_id],
+    followers = db.relationship('Follow', foreign_keys=[Follow.followed_id],
                                backref=db.backref('followed', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
-    followed = db.relationship('Follow', foreign_keys=[Follow.follower_id],
+    followeds = db.relationship('Follow', foreign_keys=[Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'), lazy='dynamic', cascade='all, delete-orphan')
     sender_messages = db.relationship('Message', foreign_keys=[Message.sender_id],
                               backref=db.backref('sender', lazy='joined'), lazy='dynamic')

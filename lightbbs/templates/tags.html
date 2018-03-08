@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Flasky - Post{% endblock %}
+
+{% block left %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">最热标签</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="list-unstyled">
+            {% for tag in tags %}
+            <span class="label label-default">
+                <a href="{{ url_for('.tag', tag_name=tag.tag_name) }}">{{ tag.tag_name }}</a>
+            </span>
+            <span class="text-muted">X{{ tag.topics.count() }}</span>
+            {% endfor %}
+        </ul>
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

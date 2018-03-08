@@ -4,38 +4,39 @@
 {% block title %}Flasky - {{ user.username }}{% endblock %}
 
 {% block left %}
-<div class="page-header">
-    <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
-    <div class="profile-header">
-        <h1>{{ user.username }}</h1>
-        {% if user.name or user.location %}
-        <p>
-            {% if user.name %}{{ user.name }}<br>{% endif %}
-            {% if user.location %}
-                From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>
-            {% endif %}
-        </p>
-        {% endif %}
-        {% if current_user.is_administrator() %}
-        <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-        {% endif %}
-        {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-        <p>Member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
-        <p>{{ user.posts.count() }} blog posts.</p>
-        <p>
-            {% if current_user.can(Permission.FOLLOW) and user != current_user %}
-                {% if not current_user.is_following(user) %}
-                <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">Follow</a>
-                {% else %}
-                <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">Unfollow</a>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="media">
+            <div class="media-left">
+                <img class="img-rounded" src="{{ user.gravatar(size=100) }}" alt="{{ user.username }}">
+            </div>
+            <div class="media-body">
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted"><small>{{ user.username }}是第{{ user.id }}号会员，加入于{{ user.regtime }}</small></p>
+                <p>签名：{{ user.signature }}</p>
+                <p>注册于： {{ moment(user.regtime).format('L') }}. 上次登录: {{ moment(user.lastlogin).fromNow() }}.</p>
+                <p>个人主页：<a href="{{ user.homepage }}">{{ user.homepage }}</a></p>
+                <p>所在地：<a href="http://maps.google.cn/?q={{ user.location }}">{{ user.location }}</a></p>
+                <p>邮箱：<a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+            </div>
+            <div class="media-right">
+                {% if current_user.can(Permission.FOLLOW) and user != current_user %}
+                    {% if not current_user.is_following(user) %}
+                    <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">关注</a>
+                    {% else %}
+                    <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">取消关注</a>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-            <a href="{{ url_for('.followers', username=user.username) }}">Followers: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
-            <a href="{{ url_for('.followed_by', username=user.username) }}">Following: <span class="badge">{{ user.followed.count() - 1 }}</span></a>
-            {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
-            | <span class="label label-default">Follows you</span>
-            {% endif %}
-        </p>
+                <a href="{{ url_for('.followers', username=user.username) }}">粉丝: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
+                <a href="{{ url_for('.followed_by', username=user.username) }}">关注: <span class="badge">{{ user.followeds.count() - 1 }}</span></a>
+                {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
+                | <span class="label label-default">关注了你</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
         <p>
             {% if user == current_user %}
             <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
@@ -46,11 +47,72 @@
         </p>
     </div>
 </div>
-<h3>Posts by {{ user.username }}</h3>
-{% include '_posts.html' %}
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><small>{{ user.username }} 最近创建的主题</small></h3>
+    </div>
+    <div class="panel-body">
+        <ul class="media-list">
+            {% for topic in topics %}
+            <li class="media topic-list">
+                <div class="pull-right">
+                    <span class="badge badge-info">{{ topic.comments.count() }}</span>
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading topic-list-heading">
+                        <a href="{{ url_for('.topic', id=topic.id) }}">{{ topic.title }}</a>
+                    </h4>
+                    <p class="small text-muted">
+                        <span><a href="{{ url_for('.node', name=topic.node.name) }}">{{ topic.node.name }}</a></span>&nbsp;•&nbsp;
+                        <span>{{ topic.addtime }}</span>&nbsp;•&nbsp;
+                        {% if topic.remly!=NULL %}
+                        <span>最后回复来自 <a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>
+                        {% else %}
+                        <span>暂无回复</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.user', username=user.username) }}
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% endif %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><small>{{ user.username }} 最近回复了</small></h3>
+    </div>
+    <div class="panel-body">
+        <ul class="media-list">
+            {% for comment in comments %}
+            <li class="media reply-list">
+                <div class="media-body reply_content">
+                    <h4 class="media-heading topic-list-heading">
+                        <small>回复了
+                            <a href="{{ url_for('.user', username=comment.topic.sender.username) }}" title="{{ comment.topic.sender.username }}">{{ comment.topic.sender.username }}</a> 创建的主题
+                        </small>
+                        <a href="{{ url_for('.topic', id=comment.topic.id) }}">{{ comment.topic.title }}</a>
+                    </h4>
+                    <blockquote>
+                        {{ comment.content }}
+                        <small>{{ comment.time }}</small>
+                    </blockquote>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination2, '.user', username=user.username) }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}
