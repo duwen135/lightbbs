@@ -22,7 +22,7 @@
     <div class="panel-body">
 
         <ul class="media-list">
-            {% for node in nodes %}
+            {% for node in get_node(parent_node) %}
             <li class="media section">
                 <div class="pull-right text-right"><p>/今日</p><p>{{ node.topics.count() }}/话题</p></div>
                 <a class="media-left" href="#"><img class="img-rounded" src="{{ node.ico }}" alt="{{ node.name }}"></a>

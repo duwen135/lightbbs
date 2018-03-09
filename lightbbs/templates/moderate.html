@@ -3,15 +3,19 @@
 
 {% block title %}Flasky - Comment Moderation{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>Comment Moderation</h1>
+{% block left %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Comment Moderation</h3>
+    </div>
+    <div class="panel-body">
+        {% set moderate = True %}
+        {% include '_comments.html' %}
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.moderate') }}
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% set moderate = True %}
-{% include '_comments.html' %}
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, '.moderate') }}
-</div>
-{% endif %}
 {% endblock %}

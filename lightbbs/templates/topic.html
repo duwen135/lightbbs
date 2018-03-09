@@ -14,14 +14,14 @@
             <span>By <a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>&nbsp;•&nbsp;
             <span>{{ topic.addtime }}</span>&nbsp;•&nbsp;
             <span>{{ topic.views }}次点击</span>
-            <!--<?php if($this->session->userdata('uid')){?>
-            <span>• <a href="javascript:void(0)" class="reply">回复</a></span>
-            <?php if($in_favorites){?>
-            <span><a href="<?php echo site_url('favorites/del/'.$content['topic_id']);?>" title="取消收藏">取消收藏</a></span>
-            <?php } else {?>
-            <span><a href="<?php echo site_url('favorites/add/'.$content['topic_id']);?>" title="点击收藏">收藏</a></span>
-            <?php } ?>
-            <?php } ?>-->
+            {% if current_user.id and current_user != topic.sender %}
+            <span>• <a href="{{ url_for('.topic', id=topic.id) }}#comments" class="reply">回复</a></span>
+                {% if current_user.is_favoriting(topic) %}
+                    <span><a href="{{ url_for('.unfavorite', topic_id=topic.id) }}" title="取消收藏">取消收藏</a></span>
+                {% else %}
+                    <span><a href="{{ url_for('.favorite', topic_id=topic.id) }}" title="点击收藏">收藏</a></span>
+                {% endif %}
+            {% endif %}
         </small>
 
     </div>

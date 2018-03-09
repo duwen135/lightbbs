@@ -77,3 +77,4 @@ class Topic(db.Model):
             raise ValidationError('文章没有内容。')
         return Topic(content=content)
     '''
+

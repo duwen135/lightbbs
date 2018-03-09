@@ -53,9 +53,10 @@ def show_followed():
 @main.route('/nodes')
 def node_list():
     parent_nodes = Node.query.filter_by(parent_id=0).all()
-    for parent_node in parent_nodes:
+    def get_node(parent_node):
         nodes = Node.query.filter_by(parent_id=parent_node.id).all()
-    return render_template('nodes.html', parent_nodes=parent_nodes, nodes=nodes)
+        return nodes
+    return render_template('nodes.html', parent_nodes=parent_nodes, get_node=get_node)
 
 @main.route('/nodes/<name>')
 def node(name):
@@ -247,11 +248,11 @@ def followers(username):
     pagination = user.followers.paginate(
         page, per_page=current_app.config['LIGHTBBS_FOLLOWERS_PER_PAGE'],
         error_out=False)
-    follows = [{'user': item.follower, 'timestamp': item.timestamp}
+    followers = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followers of",
+    return render_template('follows.html', user=user, title="Followers of",
                            endpoint='.followers', pagination=pagination,
-                           follows=follows)
+                           follows=followers)
 
 
 @main.route('/followed-by/<username>')
@@ -261,17 +262,47 @@ def followed_by(username):
         flash('Invalid user.')
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
-    pagination = user.followed.paginate(
+    pagination = user.followeds.paginate(
         page, per_page=current_app.config['LIGHTBBS_FOLLOWERS_PER_PAGE'],
         error_out=False)
-    follows = [{'user': item.followed, 'timestamp': item.timestamp}
+    followeds = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followed by",
+    return render_template('follows.html', user=user, title="Followed by",
                            endpoint='.followed_by', pagination=pagination,
-                           follows=follows)
+                           follows=followeds)
 
 #收藏部分
-@main.route('/favorite/<username>')
+@main.route('/favorite/<topic_id>')
+@login_required
+def favorit(topic_id):
+    topic = Topic.query.filter_by(id=topic_id).first()
+    if topic is None:
+        flash('话题不存在！')
+        return redirect(url_for('.index'))
+    if current_user.is_favoriting(topic):
+        flash('您已收藏了这个话题！')
+        return redirect(url_for('.topic', id=topic_id))
+    current_user.favorite(topic)
+    flash('收藏成功！')
+    return redirect(url_for('.topic', id=topic_id))
+
+
+@main.route('/unfavorite/<topic_id>')
+@login_required
+def unfavorite(topic_id):
+    topic = Topic.query.filter_by(id=topic_id).first()
+    if topic is None:
+        flash('话题不存在！')
+        return redirect(url_for('.index'))
+    if not current_user.is_favoriting(topic):
+        flash('您未收藏该话题！')
+        return redirect(url_for('.topic', id=topic_id))
+    current_user.unfavorite(topic)
+    flash('取消成功！')
+    return redirect(url_for('.topic', id=topic_id))
+
+
+@main.route('/favorites/<username>')
 def favorite(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -281,7 +312,7 @@ def favorite(username):
     pagination = user.favorites.paginate(
         page, per_page=current_app.config['LIGHTBBS_FOLLOWERS_PER_PAGE'],error_out=False)
     topics = pagination.items
-    return render_template('favorite.html', user=user, topics=topics, pagination=pagination)
+    return render_template('favorites.html', user=user, topics=topics, pagination=pagination)
 
 #评论审核部分
 @main.route('/moderate')

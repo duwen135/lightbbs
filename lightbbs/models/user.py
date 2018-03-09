@@ -14,6 +14,7 @@ from flask import current_app, url_for, request
 from .role import Role, Permission
 import hashlib
 from .topic import Topic
+from .favorite import Favorite
 
 
 class User(UserMixin,db.Model):
@@ -235,6 +236,22 @@ class User(UserMixin,db.Model):
     def is_followed_by(self, user):
         return self.followers.filter_by(
             follower_id=user.id).first() is not None
+
+    # 收藏、取消搜藏、是否已收藏
+    def favorite(self, topic):
+        if not self.is_favoriting(topic):
+            fv = Favorite(user=self, topic=topic)
+            db.session.add(fv)
+
+    def unfavorite(self, topic):
+        fv = self.favorites.filter_by(topic_id=topic.id).first()
+        if fv:
+            db.session.delete(fv)
+
+    def is_favoriting(self, topic):
+        return self.favorites.filter_by(
+            topic_id=topic.id).first() is not None
+
 
     #关注用户的文章
     @property

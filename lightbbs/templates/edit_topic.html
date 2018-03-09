@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Edit Post{% endblock %}
+{% block title %}Flasky - Edit Topic{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>Edit Post</h1>
-</div>
-<div>
-    {{ wtf.quick_form(form) }}
+{% block left %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Edit Topic</h3>
+    </div>
+    <div class="panel-body">
+        {{ wtf.quick_form(form) }}
+    </div>
 </div>
 {% endblock %}
 

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Flasky - {{ user.username }}follows{% endblock %}
+
+{% block left %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">我关注的会员</h3>
+    </div>
+    <div class="panel-body">
+        {% if followers!=NULL %}
+        <ul class='user-list clearfix'>
+            {% for follower in followers %}
+            {% if follower.followers != user %}
+            <li>
+                <a href="{{ url_for('.user', username=follower.followers.username) }}"  title="{{ follower.followers.username }}">
+                    <img class="img-rounded" alt="{{ follower.followers.username }}" src="{{ follower.followers.gravatar(size=40) }}" />
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, endpoint, username = user.username) }}
+        </div>
+        {% else %}
+        暂无关注的会员
+        {% endif %}
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">我的粉丝</h3>
+    </div>
+    <div class="panel-body">
+        {% if followeds!=NULL %}
+        <ul class='user-list clearfix'>
+            {% for followed in followeds %}
+            {% if followed.followeds != user %}
+            <li>
+                <a href="{{ url_for('.user', username=followed.followeds.username) }}"  title="{{ followed.followeds.username }}">
+                    <img class="img-rounded" alt="{{ followed.followeds.username }}" src="{{ followed.followeds.gravatar(size=40) }}" />
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, endpoint, username = user.username) }}
+        </div>
+        {% else %}
+        暂无粉丝
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

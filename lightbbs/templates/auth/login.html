@@ -3,14 +3,18 @@
 
 {% block title %}Flasky - Login{% endblock %}
 
-{% block page_content %}
-<div class="page-header">
-    <h1>Login</h1>
+{% block left %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Login</h3>
+    </div>
+    <div class="panel-body">
+        {{ wtf.quick_form(form) }}
+        <br>
+        <p>Forgot your password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>
+        <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
+    </div>
 </div>
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
-    <br>
-    <p>Forgot your password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>
-    <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
-</div>
+
 {% endblock %}
