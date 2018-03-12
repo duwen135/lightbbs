@@ -27,7 +27,7 @@
                 <li><a href="{{ url_for('main.node_list') }}">节点</a></li>
                 <li><a href="{{ url_for('main.user_list') }}">会员</a></li>
                 <li><a href="{{ url_for('main.tag_list') }}">标签</a></li>
-                <li><a href="{{ url_for('main.write') }}">发表</a></li>
+                <li><a href="{{ url_for('main.add_topic') }}">发表</a></li>
                 {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
                 {% endif %}

@@ -17,8 +17,8 @@
                 <span><a href="{{ url_for('.node', name=topic.node.name) }}">{{ topic.node.name }}</a></span>&nbsp;•&nbsp;
                 <span><a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>&nbsp;•&nbsp;
                 <span>{{ moment(topic.addtime).fromNow() }}</span>&nbsp;•&nbsp;
-                {% if topic.remly!=NULL %}
-                <span>最后回复来自 <a href="{{ url_for('.user', username=topic.sender.username) }}">{{ topic.sender.username }}</a></span>
+                {% if topic.reply %}
+                <span>最后回复来自 <a href="{{ url_for('.user', username=topic.reply.username) }}">{{ topic.reply.username }}</a></span>
                 {% else %}
                 <span>暂无回复</span>
                 {% endif %}

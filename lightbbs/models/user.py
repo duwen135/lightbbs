@@ -53,7 +53,7 @@ class User(UserMixin,db.Model):
 
     nodes = db.relationship('Node', backref='master', lazy='dynamic')
     sender_topics = db.relationship('Topic', foreign_keys=[Topic.sender_id], backref='sender', lazy='dynamic')
-    last_topic_replies = db.relationship('Topic',foreign_keys=[Topic.last_reply_id], backref='remly', lazy='dynamic')
+    last_topic_replies = db.relationship('Topic',foreign_keys=[Topic.last_reply_id], backref='reply', lazy='dynamic')
     comments = db.relationship('Comment', backref='user', lazy='dynamic')
     favorites = db.relationship('Favorite', backref='user', lazy='dynamic')
     followers = db.relationship('Follow', foreign_keys=[Follow.followed_id],
@@ -117,7 +117,7 @@ class User(UserMixin,db.Model):
                 self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
-        self.followed.append(Follow(followed=self))
+        self.followeds.append(Follow(followed=self))
 
     #登录回调
     @login_manager.user_loader
@@ -225,12 +225,12 @@ class User(UserMixin,db.Model):
             db.session.add(f)
 
     def unfollow(self, user):
-        f = self.followed.filter_by(followed_id=user.id).first()
+        f = self.followeds.filter_by(followed_id=user.id).first()
         if f:
             db.session.delete(f)
 
     def is_following(self, user):
-        return self.followed.filter_by(
+        return self.followeds.filter_by(
             followed_id=user.id).first() is not None
 
     def is_followed_by(self, user):

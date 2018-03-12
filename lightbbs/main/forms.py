@@ -11,13 +11,16 @@ from ..models.role import Role
 from ..models.user import User
 
 
-class NameForm(FlaskForm):
-    name = StringField('What is your name?', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+class TopicForm(FlaskForm):
+    node = SelectField('请选择节点', choices=[], coerce=int)
+    title = StringField('请输入话题标题', validators=[DataRequired()])
+    content = TextAreaField('描述您的内容', validators=[DataRequired()])
+    keywords = StringField('话题关键词，多个请用逗号隔开')
+    submit = SubmitField('提交')
 
 
 class EditProfileForm(FlaskForm):
-    name = StringField('Real name', validators=[Length(0, 64)])
+    username = StringField('Real name', validators=[Length(0, 64)])
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
@@ -52,11 +55,6 @@ class EditProfileAdminForm(FlaskForm):
         if field.data != self.user.username and \
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
-
-
-class TopicForm(FlaskForm):
-    contest = TextAreaField("What's on your mind?", validators=[DataRequired()])
-    submit = SubmitField('Submit')
 
 
 class CommentForm(FlaskForm):

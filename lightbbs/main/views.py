@@ -5,6 +5,7 @@ from flask import render_template, redirect, url_for, abort, flash, request, \
     current_app, make_response
 from flask_login import login_required, current_user
 from . import main
+from datetime import datetime
 from .forms import EditProfileForm, EditProfileAdminForm, TopicForm, CommentForm
 from .. import db
 from ..decorators import admin_required, permission_required
@@ -98,13 +99,13 @@ def user(username):
 def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
-        current_user.name = form.name.data
+        current_user.username = form.username.data
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
         db.session.add(current_user)
         flash('你的个人资料已经更新。')
         return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
+    form.username.data = current_user.username
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', form=form)
@@ -121,7 +122,7 @@ def edit_profile_admin(id):
         user.username = form.username.data
         user.confirmed = form.confirmed.data
         user.role = Role.query.get(form.role.data)
-        user.name = form.name.data
+        user.username = form.username.data
         user.location = form.location.data
         user.about_me = form.about_me.data
         db.session.add(user)
@@ -131,7 +132,7 @@ def edit_profile_admin(id):
     form.username.data = user.username
     form.confirmed.data = user.confirmed
     form.role.data = user.role_id
-    form.name.data = user.name
+    form.username.data = user.username
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
@@ -153,31 +154,45 @@ def tag(tag_name):
     return render_template('tag.html', tag=tag, topics=topics, pagination=pagination)
 
 #话题部分
-@main.route('/write', methods=['GET', 'POST'])
+@main.route('/add_topic', methods=['GET', 'POST'])
 @login_required
-def write():
+def add_topic():
     form = TopicForm()
-    if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit():
-        topic = Topic(content=form.content.data,
-                      sender_id=current_user._get_current_object())
+    form.node.choices = [(n.id, n.name) for n in Node.query.order_by(Node.id).all()]
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        topic = Topic(node_id=form.node.data,
+                      sender_id=current_user._get_current_object().id,
+                      title=form.title.data,
+                      content=form.content.data,
+                      keywords=form.keywords.data,
+                      addtime=datetime.utcnow())
         db.session.add(topic)
-    return render_template('write.html', form=form)
+        flash('话题发布成功！')
+        return redirect(url_for('.add_topic'))
+    return render_template('add_topic.html', form=form)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
     topic = Topic.query.get_or_404(id)
-    if current_user != topic.author and \
+    if current_user != topic.sender and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
     form = TopicForm()
+    form.node.choices = [(n.id, n.name) for n in Node.query.order_by(Node.id).all()]
     if form.validate_on_submit():
+        topic.node_id = form.node.data
+        topic.title = form.title.data
         topic.content = form.content.data
+        topic.keywords = form.keywords.data
+        topic.update_time = datetime.utcnow()
         db.session.add(topic)
         flash('这篇文章已经更新了。')
         return redirect(url_for('.topic', id=topic.id))
+    form.node.data = topic.node_id
+    form.title.data = topic.title
     form.content.data = topic.content
+    form.keywords.data = topic.keywords
     return render_template('edit_topic.html', form=form)
 
 #评论部分
