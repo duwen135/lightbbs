@@ -15,6 +15,7 @@ from ..models.comment import Comment
 from ..models.topic import Topic
 from ..models.node import Node
 from ..models.tag import Tag
+from ..models.notification import Notification
 
 #首页部分
 @main.route('/')
@@ -173,7 +174,7 @@ def add_topic():
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit(id):
+def edit_topic(id):
     topic = Topic.query.get_or_404(id)
     if current_user != topic.sender and \
             not current_user.can(Permission.ADMINISTER):
@@ -195,15 +196,27 @@ def edit(id):
     form.keywords.data = topic.keywords
     return render_template('edit_topic.html', form=form)
 
+@main.route('/delete/<int:id>', methods=['POST'])
+@login_required
+def delete_topic(id):
+    topic = Topic.query.get_or_404(id)
+    if current_user != topic.sender or \
+            not current_user.can(Permission.ADMINISTER):
+        abort(403)
+    db.session.delete(topic)
+    flash('删除成功!')
+    return render_template('topic.html', topic=topic)
+
 #评论部分
 @main.route('/topic/<int:id>', methods=['GET', 'POST'])
 def topic(id):
     topic = Topic.query.get_or_404(id)
     form = CommentForm()
     if form.validate_on_submit():
-        comment = Comment(body=form.body.data,
+        comment = Comment(content=form.content.data,
                           topic=topic,
-                          author=current_user._get_current_object())
+                          user=current_user._get_current_object(),
+                          )
         db.session.add(comment)
         flash('你的评论已经发表了。')
         return redirect(url_for('.topic', id=topic.id, page=-1))
@@ -267,7 +280,7 @@ def followers(username):
                for item in pagination.items]
     return render_template('follows.html', user=user, title="Followers of",
                            endpoint='.followers', pagination=pagination,
-                           follows=followers)
+                           followers=followers)
 
 
 @main.route('/followed-by/<username>')
@@ -284,12 +297,12 @@ def followed_by(username):
                for item in pagination.items]
     return render_template('follows.html', user=user, title="Followed by",
                            endpoint='.followed_by', pagination=pagination,
-                           follows=followeds)
+                           followeds=followeds)
 
 #收藏部分
 @main.route('/favorite/<topic_id>')
 @login_required
-def favorit(topic_id):
+def favorite(topic_id):
     topic = Topic.query.filter_by(id=topic_id).first()
     if topic is None:
         flash('话题不存在！')
@@ -318,7 +331,7 @@ def unfavorite(topic_id):
 
 
 @main.route('/favorites/<username>')
-def favorite(username):
+def favorites(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         flash('无效的用户。')
@@ -369,6 +382,21 @@ def moderate_disable(id):
 #统计部分
 #单页部分
 #通知部分
+@main.route('/notification/<int:id>')
+@login_required
+def notifications(id):
+    user = User.query.get_or_404(id)
+    page = request.args.get('page', 1, type=int)
+    if page == -1:
+        page = (user.comments.count() - 1) // \
+               current_app.config['LIGHTBBS_COMMENTS_PER_PAGE'] + 1
+    pagination = topic.topics_sender_id.order_by(Notification.time.asc()).paginate(
+        page, per_page=current_app.config['LIGHTBBS_COMMENTS_PER_PAGE'],
+        error_out=False)
+    notices = pagination.items
+    return render_template('topic.html', user=user, notices=notices, pagination=pagination)
+
+
 #搜藏部分
 #友情连接部分
 #信息部分

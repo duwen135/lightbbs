@@ -1,0 +1,50 @@
+{% if current_user.is_authenticated() %}
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-5">
+                <a href="{{ url_for('.user', username=user.username) }}"><img alt="{{ user.username }} large avatar" class="img-rounded" src="{{ user.gravatar(size=100) }}" /></a>
+            </div>
+            <div class="col-md-7">
+	            <ul class="list-unstyled">
+	            	<li><a href="{{ url_for('.user', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a></li>
+	            	<li>用户组：{{ user.role.role_name }}</li>
+	            	<li>积分：{{ user.integral }}</li>
+	            </ul>
+            </div>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-4">
+	            <p><a href="{{ url_for('.favorite', username=user.username) }}">{{ user.favotites.count() }}</a></p>
+	            <p><a href="{{ url_for('.favorite', username=user.username) }}">收藏</a></p>
+            </div>
+            <div class="col-md-4">
+	            <p><a href="{{ url_for('.followers', username=user.username) }}">{{ user.followers.count() - 1 }}</a></p>
+	            <p><a href="{{ url_for('.followers', username=user.username) }}">粉丝</a></p>
+            </div>
+            <div class="col-md-4">
+	            <p><a href="{{ url_for('.followed_by', username=user.username) }}">{{ user.followeds.count() - 1 }}</a></p>
+	            <p><a href="{{ url_for('.followed_by', username=user.username) }}">关注</a></p>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-muted">
+		{% if notices %}
+		<img align="top" alt="Dot_orange" class="icon" src="{{ url_for('static', filename='/common/images/dot_orange.png') }}" />
+		<a href="{{ url_for('.notifications', id=user.id) }}">{{ user.topics_sender_id.count() }} 条未读提醒</a>
+		{% else %}
+		暂无提醒
+		{% endif %}
+	</div>
+</div>
+{% else %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4>LightBBS</h4>
+    </div>
+    <div class="panel-body">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-default">现在注册</a> 已注册请
+<a href="{{ url_for('auth.login') }}">登入</a>
+    </div>
+</div>
+{% endif %}

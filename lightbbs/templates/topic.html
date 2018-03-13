@@ -42,20 +42,19 @@
 
     </div>
     <div class="panel-footer">
-        <!--<?php if($this->auth->is_user($content['uid']) || $this->auth->is_admin() || $this->auth->is_master($cate['node_id'])){?>
-
-        <a href="<?php echo site_url('topic/edit/'.$content['topic_id']);?>" class="btn btn-default btn-sm unbookmark" data-method="edit" rel="nofollow">编辑</a>
-        <a href="javascript:if(confirm('确实要删除吗?'))location='<?php echo site_url('topic/del/'.$content['topic_id'].'/'.$content['node_id'].'/'.$content['uid']);?>'" class="btn btn-sm btn-danger" data-method="edit" rel="nofollow">删除</a>
-        <?php }?>
-        <?php if($this->auth->is_admin() || $this->auth->is_master($cate['node_id'])){?>
-        <a href="<?php echo site_url('topic/show/'.$content['topic_id'].'?act=set_top');?>" class="btn btn-default btn-sm unbookmark" data-method="edit" rel="nofollow">
-            <?php if($content['is_top']==0){?>
+        {% if current_user==topic.sender or current_user.is_administrator() or current_user==topic.node.master %}
+        <a href="{{ url_for('.edit_topic', id=topic.id) }}" class="btn btn-default btn-sm unbookmark" data-method="edit" rel="nofollow">编辑</a>
+        <a href="javascript:if(confirm('确实要删除吗?'))location='{{ url_for('.delete_topic', id=topic.id) }}'" class="btn btn-sm btn-danger" data-method="edit" rel="nofollow">删除</a>
+        {% endif %}
+        {% if current_user.is_administrator() or current_user==topic.node.master %}
+        <a href="{{ url_for('.topic', id=topic.id) }}" class="btn btn-default btn-sm unbookmark" data-method="edit" rel="nofollow">
+            {% if topic.is_top==0 %}
             置顶
-            <?php } else {?>
+            {% else %}
             取消置顶
-            <?php }?>
+            {% endif %}
         </a>
-        <?php }?>-->
+        {% endif %}
 
     </div>
 </div>

@@ -42,8 +42,8 @@ class EditProfileAdminForm(FlaskForm):
 
     def __init__(self, user, *args, **kwargs):
         super(EditProfileAdminForm, self).__init__(*args, **kwargs)
-        self.role.choices = [(role.id, role.name)
-                             for role in Role.query.order_by(Role.name).all()]
+        self.role.choices = [(role.id, role.role_name)
+                             for role in Role.query.order_by(Role.role_name).all()]
         self.user = user
 
     def validate_email(self, field):
@@ -58,5 +58,5 @@ class EditProfileAdminForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    body = StringField('Enter your comment', validators=[DataRequired()])
+    content = StringField('Enter your comment', validators=[DataRequired()])
     submit = SubmitField('Submit')
