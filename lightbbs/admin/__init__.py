@@ -3,6 +3,6 @@ __author__ = 'duwen'
 
 from flask import Blueprint
 
-admin = Blueprint('myadmin', __name__)
+admin = Blueprint('admin', __name__)
 
-from . import views
+from . import views, forms

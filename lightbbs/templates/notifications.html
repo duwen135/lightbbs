@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as macros %}
 
-{% block title %}Flasky - Post{% endblock %}
+{% block title %}Flasky - Notification{% endblock %}
 
 {% block left %}
 
@@ -11,26 +11,29 @@
     </div>
     <div class="panel-body">
         <?php if($notices_list):?>
+        {% if notices %}
         <ul class="media-list">
-            <?php foreach ($notices_list as $v) : ?>
+            {% for notice in notices %}
             <li class="media">
                 <div class="media-body">
 
                     <blockquote>
                         <h4 class="media-heading topic-list-heading">
-                            <a href="<?php echo site_url('user/profile/'.$v['suid']);?>"><img alt="<?php echo $v['username'];?> mini avatar" src="<?php echo base_url($v['avatar'].'small.png');?>" /></a><a href="<?php echo site_url('user/profile/'.$v['suid']);?>"><?php echo $v['username'];?></a> 在贴子<a href="<?php echo site_url('topic/show/'.$v['topic_id']);?>"><?php echo $v['title'];?>...</a>中</h4>
-                        <?php if($v['ntype']==0){?>回复了你　<?php }?>
-                        <?php if($v['ntype']==1){?>提到了@你　<?php }?>
-                        <?php echo friendly_date($v['ntime']);?>
+                            <a href="{{ url_for('.user', username=user.username) }}"><img alt="{{ user.username }} mini avatar" src="{{ topic.sender.gravatar(size=20) }}" /></a>
+                            <a href="{{ url_for('.user', username=user.username) }}">{{ user.username }}</a> 在贴子
+                            <a href="{{ url_for('.topic', id=notice.topic_id) }}">{{ notice.topic.title }}...</a>中</h4>
+                        {% if notice.type==0 %}回复了你　{% endif %}
+                        {% if notice.type==1 %}提到了@你　{% endif %}
+                        {{ moment(notice.time).fromNow() }}
                     </blockquote>
                 </div>
             </li>
-            <?php endforeach; ?>
+            {% endfor %}
         </ul>
-        <?php if(@$pagination):?><ul class="pagination"><!--<?php echo $pagination; ?>--></ul><?php endif?>
-        <?php else: ?>
+        {% if pagination %}<ul class="pagination">{{ macros.pagination_widget(pagination, '.notification') }}</ul>{% endif %}
+        {% else %}
         暂无提醒
-        <?php endif; ?>
+        {% endif %}
     </div>
     <div class="panel-footer">Panel footer</div>
 </div>
