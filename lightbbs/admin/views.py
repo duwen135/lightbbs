@@ -6,7 +6,9 @@ from . import admin
 from flask_login import current_user, login_required
 from ..decorators import admin_required, permission_required
 from ..import db
+from .forms import UserEdit
 from ..models.user import User
+from ..models.role import Role
 
 
 #用户管理
@@ -25,4 +27,24 @@ def user_list():
 @admin_required
 @login_required
 def user_edit(id):
-    user = User.query.filter_by(id=id).first_or_404()
+    user = User.query.get_or_404(id)
+    form = UserEdit(user=user)
+    if form.validate_on_submit():
+        user.email = form.email.data
+        user.username = form.username.data
+        user.confirmed = form.confirmed.data
+        user.role = Role.query.get(form.role.data)
+        user.username = form.username.data
+        user.location = form.location.data
+        user.about_me = form.about_me.data
+        db.session.add(user)
+        flash('用户资料已经更新。')
+        return redirect(url_for('.user', username=user.username))
+    form.email.data = user.email
+    form.username.data = user.username
+    form.confirmed.data = user.confirmed
+    form.role.data = user.role_id
+    form.username.data = user.username
+    form.location.data = user.location
+    form.about_me.data = user.about_me
+    return render_template('edit_profile.html', form=form, user=user)
