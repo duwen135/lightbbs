@@ -30,21 +30,35 @@ def user_edit(id):
     user = User.query.get_or_404(id)
     form = UserEdit(user=user)
     if form.validate_on_submit():
-        user.email = form.email.data
         user.username = form.username.data
+        user.email = form.email.data
+        user.password = form.password.data
+        user.homepage = form.homepage.data
+        user.location = form.location.data
+        user.signature = form.signature.data
+        user.about_me = form.about_me.data
+        user.integral = form.integral.data
         user.confirmed = form.confirmed.data
         user.role = Role.query.get(form.role.data)
-        user.username = form.username.data
-        user.location = form.location.data
-        user.about_me = form.about_me.data
         db.session.add(user)
         flash('用户资料已经更新。')
         return redirect(url_for('.user', username=user.username))
-    form.email.data = user.email
     form.username.data = user.username
+    form.email.data = user.email
+    form.homepage.data = user.homepage
+    form.location.data = user.location
+    form.signature.data = user.signature
+    form.about_me.data = user.about_me
+    form.integral.data = user.integral
     form.confirmed.data = user.confirmed
     form.role.data = user.role_id
-    form.username.data = user.username
-    form.location.data = user.location
-    form.about_me.data = user.about_me
-    return render_template('edit_profile.html', form=form, user=user)
+    return render_template('/admin/user_edit.html', form=form, user=user)
+
+@admin.route('/delete/<id>', methods=['POST'])
+@admin_required
+@login_required
+def user_delete(id):
+    user = User.query.first_or_404(id)
+    db.session.delete(user)
+    flash('删除成功！')
+    render_template('/admin/users.html', user=user)
