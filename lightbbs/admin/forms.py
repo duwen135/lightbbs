@@ -29,6 +29,12 @@ class UserEdit(FlaskForm):
     role = SelectField('角色', coerce=int)
     submit = SubmitField('更新用户信息')
 
+    def __init__(self, user, *args, **kwargs):
+        super(UserEdit, self).__init__(*args, **kwargs)
+        self.role.choices = [(role.id, role.role_name)
+                             for role in Role.query.order_by(Role.role_name).all()]
+        self.user = user
+
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
