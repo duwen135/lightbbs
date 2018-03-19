@@ -14,43 +14,40 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">Panel title</h3>
-        <a href="<?php echo site_url('admin/nodes/add');?>" class="btn btn-primary btn-sm" data-remote="true">添加节点</a>
+        <h3 class="panel-title">节点管理</h3>
+        <a href="{{ url_for('admin.node_add') }}" class="btn btn-primary btn-sm" data-remote="true">添加节点</a>
     </div>
     <div class="panel-body">
-        <?php if($cates){?>
+        {% if parent_nodes %}
         <table class="table table-hover table-condensed">
-            <?php foreach($cates as $v){?>
             <thead>
                 <th>列表</th>
                 <th><span class="pull-right">选项</span></th>
             </thead>
+            {% for parent_node in parent_nodes %}
             <tbody>
                 <tr>
-                    <td><?php echo $v['cname'];?></td>
-                    <td><span class="pull-right"><a href="<?php echo site_url('/admin/nodes/edit/'.$v['node_id']);?>" class="btn btn-primary btn-sm" data-remote="true" id="edit_node_1">修改</a>
-                        <a href="<?php echo site_url('/admin/nodes/move/'.$v['node_id']);?>" class="btn btn-primary btn-sm" data-remote="true">移动</a>
-                        <a href="<?php echo site_url('/admin/nodes/del/'.$v['node_id']);?>" class="btn btn-sm btn-danger" data-confirm="真的要删除吗?" data-method="delete" data-remote="true" rel="nofollow">删除</a></span>
-                    </td>
-                </tr>
-                <?php if($scates=$this->cate_m->get_cates_by_pid($v['node_id']))?>
-                <?php foreach($scates as $s){?>
-                <tr>
-                    <td>├─&nbsp;<a href="<?php echo site_url('node/show/'.$s['node_id']);?>"><?php echo $s['cname'];?></a></td>
+                    <td>{{ parent_node.name }}</td>
                     <td><span class="pull-right">
-                        <a href="<?php echo site_url('/admin/nodes/edit/'.$s['node_id']);?>" class="btn btn-primary btn-sm" data-remote="true" id="edit_node_1">修改</a>
-                        <a href="<?php echo site_url('/admin/nodes/move/'.$s['node_id']);?>" class="btn btn-primary btn-sm" data-remote="true">移动</a>
-                        <a href="<?php echo site_url('/admin/nodes/del/'.$s['node_id']);?>" class="btn btn-sm btn-danger" data-confirm="真的要删除吗?" data-method="delete" data-remote="true" rel="nofollow">删除</a></span>
+                        <a href="{{ url_for('admin.node_edit', id=parent_node.id) }}" class="btn btn-primary btn-sm" data-remote="true">修改</a>
+                        <a href="{{ url_for('admin.node_delete', id=parent_node.id) }}" class="btn btn-sm btn-danger" data-confirm="真的要删除吗?" data-method="delete" data-remote="true" rel="nofollow">删除</a></span>
                     </td>
                 </tr>
-                <?php } ?>
-
-                <?php } ?>
+                {% for node in get_node(parent_node) %}
+                <tr>
+                    <td>├─&nbsp;<a href="{{ url_for('main.node', name=node.name) }}">{{ node.name }}</a></td>
+                    <td><span class="pull-right">
+                        <a href="{{ url_for('admin.node_edit', id=node.id) }}" class="btn btn-primary btn-sm" data-remote="true" id="edit_node_1">修改</a>
+                        <a href="{{ url_for('admin.node_delete', id=node.id) }}" class="btn btn-sm btn-danger" data-confirm="真的要删除吗?" data-method="delete" data-remote="true" rel="nofollow">删除</a></span>
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
+            {% endfor %}
         </table>
-        <?php } else {?>
+        {% else %}
         暂无分类
-        <?php } ?>
+        {% endif %}
     </div>
     <div class="panel-footer">Panel footer</div>
 </div>
