@@ -15,11 +15,11 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">链接列表
-            <a href="<?php echo site_url('admin/links/add');?>" class="btn btn-primary btn-sm" data-remote="true">添加链接</a>
+            <a href="{{ url_for('admin.link_add') }}" class="btn btn-primary btn-sm" data-remote="true">添加链接</a>
         </h3>
     </div>
     <div class="panel-body">
-        <?php if($links){?>
+        {% if links %}
         <table class='table table-hover table-condensed'>
             <thead>
             <tr>
@@ -31,37 +31,35 @@
             </tr>
             </thead>
             <tbody>
-            <?php foreach($links as $v){ ?>
+            {% for link in links %}
             <tr>
                 <td>
-                    <strong><?php echo $v['id']?></strong>
+                    <strong>{{ link.id }}</strong>
                 </td>
                 <td>
-                    <a href="<?php echo $v['url']?>">
-                        <?php echo $v[ 'name']?>
+                    <a href="{{ link.url }}">
+                        {{ link.name }}
                     </a>
                 </td>
                 <td>
-                    <a href="<?php echo $v['url']?>" class="rabel profile_link" title="admin">
-                        <?php echo $v[ 'url']?>
+                    <a href="{{ link.url }}" class="rabel profile_link" title="admin">
+                        {{ link.url }}
                     </a>
                 </td>
                 <td>
-					<small class='fade1'><?php if($v['is_hidden']==0){?>显示<?php } else {?>隐藏<?php }?></small>
+					<small class='fade1'>{% if link.is_hidden %}显示{% else %}隐藏{% endif %}</small>
                 </td>
                 <td>
-					<a href="<?php echo site_url('admin/links/edit/'.$v['id']);?>" class="btn btn-primary btn-sm">编辑</a>
-					<a href="<?php echo site_url('admin/links/del/'.$v['id']);?>" class="btn btn-sm btn-danger" data-confirm="真的要删除吗？" data-method="delete" rel="nofollow">删除</a>
+					<a href="{{ url_for('admin.link_edit', id=link.id) }}" class="btn btn-primary btn-sm">编辑</a>
+					<a href="{{ url_for('admin.link_delete', id=link.id) }}" class="btn btn-sm btn-danger" data-confirm="真的要删除吗？" data-method="delete" rel="nofollow">删除</a>
                 </td>
             </tr>
-            <?php }?>
+            {% endfor %}
             </tbody>
         </table>
-        <ul class="paper">
-            <?php echo $pagination?>
-        </ul>
-        <?php } else{?>暂无贴子
-        <?php }?>
+        {% if pagination %} <div class="pagination"> {{ macros.pagination_widget(pagination, 'admin.link_list') }} </div> {% endif %}
+        {% else %}暂无贴子
+        {% endif %}
     </div>
     <div class="panel-footer">Panel footer</div>
 </div>

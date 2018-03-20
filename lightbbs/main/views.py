@@ -16,6 +16,7 @@ from ..models.topic import Topic
 from ..models.node import Node
 from ..models.tag import Tag
 from ..models.notification import Notification
+from ..models.page import Page
 
 #首页部分
 @main.route('/')
@@ -381,6 +382,11 @@ def moderate_disable(id):
 
 #统计部分
 #单页部分
+@main.route('/page/<id>')
+@login_required
+def page(id):
+    page = Page.query.get_or_404(id)
+    return render_template('page.html', page=page)
 #通知部分
 @main.route('/notification/<int:id>')
 @login_required

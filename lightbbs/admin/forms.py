@@ -9,6 +9,7 @@ from wtforms import ValidationError
 from ..models.role import Role
 from ..models.user import User
 from ..models.node import Node
+from ..models.link import Link
 
 
 class UserEdit(FlaskForm):
@@ -73,7 +74,23 @@ class TopicForm(FlaskForm):
     keywords = StringField('话题关键词，多个请用逗号隔开')
     submit = SubmitField('提交')
 
+    def __init__(self, *args, **kwargs):
+        super(NodeForm, self).__init__(*args, **kwargs)
+        self.parent_id.choices = [(node.id, node.name)
+                             for node in Node.query.order_by(Node.name).filter_by(Node.parent_id!=0).all()]
+        #self.node = node
+
 class PageForm(FlaskForm):
-    title = StringField('网站名称', validators=[DataRequired])
-    go_url = StringField('网址', validators=[DataRequired])
-    is_hidden = BooleanField('是否隐藏', validators=[DataRequired])
+    title = StringField('网页名称', validators=[DataRequired()])
+    keywords = StringField('关键词')
+    content = TextAreaField('页面内容')
+    go_url = StringField('网址')
+    is_hidden = BooleanField('是否隐藏')
+    submit = SubmitField('提交')
+
+class LinkForm(FlaskForm):
+    name = StringField('网站名称', validators=[DataRequired()])
+    url = StringField('网址')
+    logo = StringField('LOGO')
+    is_hidden = BooleanField('是否隐藏')
+    submit = SubmitField('提交')

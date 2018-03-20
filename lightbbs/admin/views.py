@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from ..decorators import admin_required, permission_required
 from datetime import datetime
 from ..import db
-from .forms import UserEdit, NodeForm, TopicForm
+from .forms import UserEdit, NodeForm, TopicForm, PageForm, LinkForm
 from ..models.user import User
 from ..models.role import Role
 from ..models.node import Node
@@ -59,13 +59,15 @@ def user_edit(id):
     form.role.data = user.role_id
     return render_template('/admin/user_edit.html', form=form, user=user)
 
-@admin.route('/user_delete/<int:id>', methods=['POST'])
+@admin.route('/user_delete/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def user_delete(id):
     user = User.query.first_or_404(id)
-    db.session.delete(user)
-    flash('删除成功！')
+    if user:
+        db.session.delete(user)
+        flash('删除成功！')
+        return redirect(url_for('admin.user_list'))
     render_template('/admin/users.html', user=user)
 
 #节点管理
@@ -117,14 +119,16 @@ def node_edit(id):
         return redirect(url_for('admin.node_list'))
     return render_template('admin/node_edit.html', node=node, form=form)
 
-@admin.route('/node_delete/<int:id>', methods=['POST'])
+@admin.route('/node_delete/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def node_delete(id):
     node = Node.query.get_or_404(id)
-    db.session.delete(node)
-    flash('节点删除成功!')
-    return render_template('admin/node_list.html', node=node)
+    if node:
+        db.session.delete(node)
+        flash('节点删除成功!')
+        return redirect(url_for('admin.node_list'))
+    return render_template('admin/nodes.html', node=node)
 
 
 #话题管理
@@ -179,57 +183,126 @@ def topic_edit(id):
     form.keywords.data = topic.keywords
     return render_template('/admin/topic_edit.html', form=form)
 
-@admin.route('/topic_delete/<int:id>', methods=['POST'])
+@admin.route('/topic_delete/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def topic_delete(id):
     topic = Topic.query.get_or_404(id)
-    db.session.delete(topic)
-    flash('删除成功!')
+    if topic:
+        db.session.delete(topic)
+        flash('删除成功!')
+        return redirect(url_for('admin.topic_list'))
     return render_template('/admin/topics.html', topic=topic)
 
-@admin.route('/topic_top/<int:id>', methods=['POST'])
+@admin.route('/topic_top/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def top(id):
     topic = Topic.query.get_or_404(id)
-    topic.is_top = True
-    db.session.add(topic)
-    flash('置顶成功！')
+    if topic:
+        topic.is_top = True
+        db.session.add(topic)
+        flash('置顶成功！')
+        return redirect(url_for('admin.topic_list'))
     return render_template('/admin/topics.html', topic=topic)
 
-@admin.route('/topic_untop/<int:id>', methods=['POST'])
+@admin.route('/topic_untop/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def untop(id):
     topic = Topic.query.get_or_404(id)
-    topic.is_top = False
-    db.session.add(topic)
-    flash('取消置顶！')
+    if topic:
+        topic.is_top = False
+        db.session.add(topic)
+        flash('取消置顶！')
+        return redirect(url_for('admin.topic_list'))
     return render_template('/admin/topics.html', topic=topic)
 
-@admin.route('/topic_hidden/<int:id>', methods=['POST'])
+@admin.route('/topic_hidden/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def hidden(id):
     topic = Topic.query.get_or_404(id)
-    topic.is_hidden = True
-    db.session.add(topic)
-    flash('已设置隐藏！')
+    if topic:
+        topic.is_hidden = True
+        db.session.add(topic)
+        flash('已设置隐藏！')
+        return redirect(url_for('admin.topic_list'))
     return render_template('/admin/topics.html', topic=topic)
 
-@admin.route('/topic_unhidden/<int:id>', methods=['POST'])
+@admin.route('/topic_unhidden/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def unhidden(id):
     topic = Topic.query.get_or_404(id)
-    topic.is_hidden = False
-    db.session.add(topic)
-    flash('已设置显示！')
+    if topic:
+        topic.is_hidden = False
+        db.session.add(topic)
+        flash('已设置显示！')
+        return redirect(url_for('admin.topic_list'))
     return render_template('/admin/topics.html', topic=topic)
 
 
 #友情链接
+@admin.route('/link_list')
+@admin_required
+@login_required
+def link_list():
+    page = request.args.get('page', 1, type=int)
+    pagination = Link.query.order_by(Link.name).paginate(
+        page, per_page=current_app.config['LIGHTBBS_POSTS_PER_PAGE'], error_out=False
+    )
+    links = pagination.items
+    return render_template('/admin/links.html', links=links)
+
+@admin.route('/link_add', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def link_add():
+    form = LinkForm()
+    if form.validate_on_submit():
+        link = Link(
+            name=form.name.data,
+            url = form.url.data,
+            logo = form.logo.data,
+            is_hidden = form.is_hidden.data
+        )
+        db.session.add(link)
+        flash('添加友情链接成功！')
+        return redirect(url_for('admin.link_list'))
+    return render_template('/admin/link_add.html', form=form)
+
+@admin.route('/link_edit/<int:id>', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def link_edit(id):
+    link = Link.query.get_or_404(id)
+    form = LinkForm()
+    if form.validate_on_submit():
+        link.name = form.name.data,
+        link.url = form.url.data,
+        link.logo = form.logo.data,
+        link.is_hidden = form.is_hidden.data
+        db.session.add(link)
+        flash('友情链接更新成功！')
+        return redirect(url_for('admin.link_list'))
+    form.name.data = link.name
+    form.url.data = link.url
+    form.logo.data = link.logo
+    form.is_hidden.data = link.is_hidden
+    return render_template('/admin/link_edit.html', link=link, form=form)
+
+@admin.route('/link_delete/<int:id>', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def link_delete(id):
+    link = Link.query.get_or_404(id)
+    if link:
+        db.session.delete(link)
+        flash('友情链接删除成功！')
+        return redirect(url_for('admin.link_list'))
+    return render_template('/admin/links.html', link=link)
+
 
 #单页
 @admin.route('/page_list')
@@ -241,4 +314,56 @@ def page_list():
         page, per_page=current_app.config['LIGHTBBS_POSTS_PER_PAGE'],
         error_out=False)
     pages = pagination.items
-    return render_template('/admin/topics.html', pages=pages)
+    return render_template('/admin/pages.html', pages=pages)
+
+@admin.route('/page_add', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def page_add():
+    form = PageForm()
+    if form.validate_on_submit():
+        page = Page(
+            title = form.title.data,
+            keywords = form.keywords.data,
+            content = form.content.data,
+            go_url = form.go_url.data,
+            is_hidden = form.is_hidden.data
+        )
+        db.session.add(page)
+        flash('单页添加成功！')
+        return redirect(url_for('admin.page_list'))
+    return render_template('/admin/page_add.html', form=form)
+
+@admin.route('/page_edit/<int:id>', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def page_edit(id):
+    page = Page.query.get_or_404(id)
+    form = PageForm()
+    if form.validate_on_submit():
+        page.title = form.title.data,
+        page.keywords = form.keywords.data,
+        page.content = form.content.data,
+        page.go_url = form.go_url.data,
+        page.is_hidden = form.is_hidden.data
+
+        db.session.add(page)
+        flash('单页更新成功！')
+        return redirect(url_for('admin.page_list'))
+    form.title.data = page.title
+    form.keywords.data = page.keywords
+    form.content.data = page.content
+    form.go_url.data = page.go_url
+    form.is_hidden.data = page.is_hidden
+    return render_template('/admin/page_edit.html', page=page, form=form)
+
+@admin.route('/page_delete/<int:id>', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def page_delete(id):
+    page = Page.query.get_or_404(id)
+    if page:
+        db.session.delete(page)
+        flash('单页删除成功！')
+        return redirect(url_for('admin.page_list'))
+    return render_template('/admin/pages.html', page=page)
