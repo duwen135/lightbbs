@@ -6,7 +6,7 @@
         <p>{{ topic.node.content }}</p>
         <a href="{{ url_for('.node', name=topic.node.name) }}" class="btn btn-default btn-sm">此节点</a>
         <a href="{{ url_for('.add_topic') }}" class="btn btn-sm btn-success">新建话题</a>
-        <a href="{{ url_for('.topic', id=topic.id, content['previous']) }}" class="btn btn-default btn-sm">上一贴</a>
-        <a href="{{ url_for('.topic', id=topic.id, content['next']) }}" class="btn btn-default btn-sm">下一贴</a>
+        <a href="{{ url_for('.topic', id=topic.id+1) }}" class="btn btn-default btn-sm">上一贴</a>
+        <a href="{{ url_for('.topic', id=topic.id-1) }}" class="btn btn-default btn-sm">下一贴</a>
     </div>
 </div>

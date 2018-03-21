@@ -4,7 +4,7 @@
 {% block title %}Flasky - {{ user.username }}follows{% endblock %}
 
 {% block left %}
-
+{% if followers %}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">我的粉丝</h3>
@@ -30,7 +30,9 @@
         {% endif %}
     </div>
 </div>
+{% endif %}
 
+{% if followeds!=NULL %}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">我关注的会员</h3>
@@ -56,5 +58,6 @@
         {% endif %}
     </div>
 </div>
+{% endif %}
 
 {% endblock %}

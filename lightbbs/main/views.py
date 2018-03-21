@@ -17,6 +17,7 @@ from ..models.node import Node
 from ..models.tag import Tag
 from ..models.notification import Notification
 from ..models.page import Page
+from ..models.link import Link
 
 #首页部分
 @main.route('/')
@@ -33,8 +34,15 @@ def index():
         page, per_page=current_app.config['LIGHTBBS_POSTS_PER_PAGE'],
         error_out=False)
     topics = pagination.items
-    return render_template('index.html', topics=topics,
-                           show_followed=show_followed, pagination=pagination)
+    #sidebar_node
+    parent_nodes = Node.query.filter_by(parent_id=0).all()
+    def get_node(parent_node):
+        nodes = Node.query.filter_by(parent_id=parent_node.id).all()
+        return nodes
+    #sedebar_link
+    links = Link.query.filter_by(is_hidden=False).all()
+    return render_template('index.html', topics=topics,show_followed=show_followed, pagination=pagination,
+                           parent_nodes=parent_nodes, get_node=get_node, links=links)
 
 #首页话题列表响应
 @main.route('/all')
@@ -340,8 +348,8 @@ def favorites(username):
     page = request.args.get('page', 1, type=int)
     pagination = user.favorites.paginate(
         page, per_page=current_app.config['LIGHTBBS_FOLLOWERS_PER_PAGE'],error_out=False)
-    topics = pagination.items
-    return render_template('favorites.html', user=user, topics=topics, pagination=pagination)
+    favorite_topics = pagination.items
+    return render_template('favorites.html', user=user, favorite_topics=favorite_topics, pagination=pagination)
 
 #评论审核部分
 @main.route('/moderate')
@@ -378,9 +386,11 @@ def moderate_disable(id):
     return redirect(url_for('.moderate',
                             page=request.args.get('page', 1, type=int)))
 
-#小工具部分
 
 #统计部分
+#sidebai_link
+
+#sidebai_
 #单页部分
 @main.route('/page/<id>')
 @login_required
@@ -401,8 +411,3 @@ def notifications(id):
         error_out=False)
     notices = pagination.items
     return render_template('topic.html', user=user, notices=notices, pagination=pagination)
-
-
-#搜藏部分
-#友情连接部分
-#信息部分

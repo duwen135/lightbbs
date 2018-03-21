@@ -7,9 +7,9 @@
     	{% for parent_node in parent_nodes %}
     	<p><span class="text-muted">{{ parent_node.name }}</span></p>
         <p>
-        {% if nodes for node in nodes %}
-		<a href="{{ url_for('.node', name=node.name) }}">{{ node.name }}</a>&nbsp;
-		{% endif %}
+			{% for node in get_node(parent_node) %}
+			<a href="{{ url_for('.node', name=node.name) }}">{{ node.name }}</a>&nbsp;
+			{% endfor %}
 		</p>
 		{% endfor %}
 		{% endif %}

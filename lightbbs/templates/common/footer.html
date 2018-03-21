@@ -1,20 +1,20 @@
 <footer class="small">
 	<div class="container">
 		<div class="row">
-			{% if page_links %}
+			{% if pages %}
 			<ul class="list-inline">
-			{% for page_link in page_links %}
-				{% if go_urls %}
-				<li><a href="#" target=_blank>{{ ## }}</a></li>
+			{% for page in pages %}
+				{% if page.go_url %}
+				<li><a href="{{ page.go_url }}" target=_blank>{{ page.title }}</a></li>
 				{% else %}
-				<li><a href="#">{{ ## }}</a></li>
+				<li><a href="{{ url_for('main.page', id=page.id) }}">{{ page.title }}</a></li>
 				{% endif %}
 			{% endfor %}
 			</ul>
 			{% endif %}
-			<p>{{ seting.site_name }}  {{ seting.site_stats }}</p>
-			<p>Powered by <a href="{{ url_for('.index') }}" class="text-muted" target="_blank">{{ sys.name }}</a>
-				{{ sys.version }} 2013-2014 Some rights reserved 页面执行时间:  {{ elapsed_time }}s
+			<p>LightBBS-开源轻社区</p>
+			<p>Powered by <a href="{{ url_for('.index') }}" class="text-muted" target="_blank">LightBBS</a>
+				V1.0 2013-2014 保留部分权利
 			</p>
 		</div>
 	</div>
