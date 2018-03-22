@@ -76,14 +76,11 @@ ul.user-list li{
     font-size:12pt;
 }
 footer {
-	position: absolute;
+    position: fixed;
  	bottom: 0;
  	width: 100%;
-    /*background-color: #f8f8f8; #e4e4e4 #f9fafb*/
     background-color: #3b3f45;
     color: #68696d;
-    /*border-top: 1px solid #edf0f3;*/
-    border-top: 1px solid #dad9d5;
     padding: 10px 0;
     margin-top: 0px;
 }

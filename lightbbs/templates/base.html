@@ -63,11 +63,8 @@
 
 {% block content %}
 <div class="container">
-
-
     <div class="row">
         <div class="col-md-8">
-
             {% for message in get_flashed_messages() %}
             <div class="alert alert-warning">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -84,9 +81,7 @@
             {% include '/common/sidebar_ad.html' %}
             {% endblock %}
         </div><!-- /.col-md-4 -->
-
     </div><!-- /.row -->
-
 </div>
 
 {% block footer %}
