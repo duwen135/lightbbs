@@ -7,32 +7,42 @@
 
 <div class="panel panel-default">
     <div class="panel-body">
-        <div class="media">
-            <div class="media-left">
-                <img class="img-rounded" src="{{ user.gravatar(size=100) }}" alt="{{ user.username }}">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="media">
+                    <div class="media-left">
+                        <img class="img-rounded" src="{{ user.gravatar(size=100) }}" alt="{{ user.username }}">
+                    </div>
+                    <div class="media-body">
+                        <h4>{{ user.username }}</h4>
+                        <p class="text-muted"><small>{{ user.username }}是第{{ user.id }}号会员，加入于{{ user.regtime }}</small></p>
+                        <p>签名：{{ user.signature }}</p>
+                        <p>注册于： {{ moment(user.regtime).format('L') }}. 上次登录: {{ moment(user.lastlogin).fromNow() }}.</p>
+                        <p>个人主页：<a href="{{ user.homepage }}">{{ user.homepage }}</a></p>
+                        <p>所在地：<a href="http://maps.google.cn/?q={{ user.location }}">{{ user.location }}</a></p>
+                        <p>邮箱：<a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+                    </div>
+                </div>
             </div>
-            <div class="media-body">
-                <h4>{{ user.username }}</h4>
-                <p class="text-muted"><small>{{ user.username }}是第{{ user.id }}号会员，加入于{{ user.regtime }}</small></p>
-                <p>签名：{{ user.signature }}</p>
-                <p>注册于： {{ moment(user.regtime).format('L') }}. 上次登录: {{ moment(user.lastlogin).fromNow() }}.</p>
-                <p>个人主页：<a href="{{ user.homepage }}">{{ user.homepage }}</a></p>
-                <p>所在地：<a href="http://maps.google.cn/?q={{ user.location }}">{{ user.location }}</a></p>
-                <p>邮箱：<a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-            </div>
-            <div class="media-right">
-                {% if current_user.can(Permission.FOLLOW) and user != current_user %}
-                    {% if not current_user.is_following(user) %}
-                    <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">关注</a>
-                    {% else %}
-                    <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">取消关注</a>
+            <div class="col-md-4">
+                <p>
+                    {% if current_user.can(Permission.FOLLOW) and user != current_user %}
+                        {% if not current_user.is_following(user) %}
+                        <a href="{{ url_for('.follow', username=user.username) }}" class="btn btn-primary">关注</a>
+                        {% else %}
+                        <a href="{{ url_for('.unfollow', username=user.username) }}" class="btn btn-default">取消关注</a>
+                        {% endif %}
                     {% endif %}
-                {% endif %}
-                <a href="{{ url_for('.followers', username=user.username) }}">粉丝: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
-                <a href="{{ url_for('.followed_by', username=user.username) }}">关注: <span class="badge">{{ user.followeds.count() - 1 }}</span></a>
-                {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
-                | <span class="label label-default">关注了你</span>
-                {% endif %}
+                </p>
+                <p>
+                    <a href="{{ url_for('.followers', username=user.username) }}">粉丝: <span class="badge">{{ user.followers.count() - 1 }}</span></a>
+                    <a href="{{ url_for('.followed_by', username=user.username) }}">关注: <span class="badge">{{ user.followeds.count() - 1 }}</span></a>
+                </p>
+                <p>
+                    {% if current_user.is_authenticated and user != current_user and user.is_following(current_user) %}
+                    | <span class="label label-default">关注了你</span>
+                    {% endif %}
+                </p>
             </div>
         </div>
     </div>

@@ -7,13 +7,14 @@ from flask_login import current_user, login_required
 from ..decorators import admin_required, permission_required
 from datetime import datetime
 from ..import db
-from .forms import UserEdit, NodeForm, TopicForm, PageForm, LinkForm
+from .forms import UserEdit, NodeForm, TopicForm, PageForm, LinkForm, SettingForm
 from ..models.user import User
 from ..models.role import Role
 from ..models.node import Node
 from ..models.topic import Topic
 from ..models.link import Link
 from ..models.page import Page
+from ..models.setting import Setting
 
 
 #用户管理
@@ -367,3 +368,24 @@ def page_delete(id):
         flash('单页删除成功！')
         return redirect(url_for('admin.page_list'))
     return render_template('/admin/pages.html', page=page)
+
+
+#设置
+@admin.route('/site_setting', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def site_setting():
+    form = SettingForm()
+    if form.validate_on_submit():
+        setting = Setting(
+            title = form.title.data,
+            value = form.value.data,
+            type = form.type.data
+        )
+        db.session.add(setting)
+        flash('设置成功！')
+        return redirect(url_for('admin.site_settings'))
+    form.title.data = setting.title
+    form.value.data = setting.value
+    form.type.data = setting.type
+    return render_template('/admin/site_settings.html', form=form)

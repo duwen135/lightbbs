@@ -36,7 +36,7 @@
                         {{ user.id }}
                     </td>
                     <td>
-                        <strong><a href="{{ url_for('main.user', username=user.username) }}" class="black startbbs profile_link" title="admin">{{ user.username }}</a></strong>
+                        <strong><a href="{{ url_for('main.user', username=user.username) }}" class="black profile_link" title="admin">{{ user.username }}</a></strong>
                     </td>
                     <td>
                         <strong class='green'>{{ user.role.role_name }}</strong>
