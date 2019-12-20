@@ -109,15 +109,19 @@ def node_edit(id):
     node = Node.query.get_or_404(id)
     form = NodeForm(node=node)
     if form.validate_on_submit():
-        node.name = form.name.data,
-        node.parent_id = form.parent_id.data,
-        node.keywords = form.keywords.data,
-        node.content = form.content.data,
+        node.name = form.name.data
+        node.parent_id = form.parent_id.data
+        node.keywords = form.keywords.data
+        node.content = form.content.data
         node.master_id = form.master_id.data
-
         db.session.add(node)
         flash('节点修改成功！')
         return redirect(url_for('admin.node_list'))
+    form.name.data = node.name
+    form.parent_id.data = node.parent_id
+    form.keywords.data = node.keywords
+    form.content.data = node.content
+    form.master_id.data = node.master_id
     return render_template('admin/node_edit.html', node=node, form=form)
 
 @admin.route('/node_delete/<int:id>', methods=['GET', 'POST'])
@@ -159,7 +163,7 @@ def topic_add():
                       addtime=datetime.utcnow())
         db.session.add(topic)
         flash('话题发布成功！')
-        return redirect(url_for('admin.topics'))
+        return redirect(url_for('admin.topic_list'))
     return render_template('/admin/topic_add.html', form=form)
 
 @admin.route('/topic_edit/<int:id>', methods=['GET', 'POST'])
@@ -177,7 +181,7 @@ def topic_edit(id):
         topic.update_time = datetime.utcnow()
         db.session.add(topic)
         flash('这篇文章已经更新了。')
-        return redirect(url_for('admin.topics', id=topic.id))
+        return redirect(url_for('admin.topic_list'))
     form.node.data = topic.node_id
     form.title.data = topic.title
     form.content.data = topic.content
@@ -280,9 +284,9 @@ def link_edit(id):
     link = Link.query.get_or_404(id)
     form = LinkForm()
     if form.validate_on_submit():
-        link.name = form.name.data,
-        link.url = form.url.data,
-        link.logo = form.logo.data,
+        link.name = form.name.data
+        link.url = form.url.data
+        link.logo = form.logo.data
         link.is_hidden = form.is_hidden.data
         db.session.add(link)
         flash('友情链接更新成功！')
@@ -342,10 +346,10 @@ def page_edit(id):
     page = Page.query.get_or_404(id)
     form = PageForm()
     if form.validate_on_submit():
-        page.title = form.title.data,
-        page.keywords = form.keywords.data,
-        page.content = form.content.data,
-        page.go_url = form.go_url.data,
+        page.title = form.title.data
+        page.keywords = form.keywords.data
+        page.content = form.content.data
+        page.go_url = form.go_url.data
         page.is_hidden = form.is_hidden.data
 
         db.session.add(page)

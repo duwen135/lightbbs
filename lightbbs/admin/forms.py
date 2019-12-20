@@ -48,13 +48,14 @@ class UserEdit(FlaskForm):
 
 class NodeForm(FlaskForm):
     name = StringField('节点名称', validators=[
-        DataRequired, Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
+        DataRequired(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                             'Usernames must have only letters, '
                                             'numbers, dots or underscores')])
     parent_id = SelectField('父目录', coerce=int)
     keywords = StringField('节点关键词')
     content = TextAreaField('分类简介')
     master_id = StringField('节点版主')
+    submit = SubmitField('提交')
 
     def __init__(self, *args, **kwargs):
         super(NodeForm, self).__init__(*args, **kwargs)
@@ -75,9 +76,9 @@ class TopicForm(FlaskForm):
     submit = SubmitField('提交')
 
     def __init__(self, *args, **kwargs):
-        super(NodeForm, self).__init__(*args, **kwargs)
-        self.parent_id.choices = [(node.id, node.name)
-                             for node in Node.query.order_by(Node.name).filter_by(Node.parent_id!=0).all()]
+        super(TopicForm, self).__init__(*args, **kwargs)
+        self.node.choices = [(node.id, node.name)
+                             for node in Node.query.order_by(Node.name).all()]
         #self.node = node
 
 class PageForm(FlaskForm):
