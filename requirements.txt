@@ -1,5 +1,5 @@
 alembic==0.9.7
-bleach==2.1.2
+bleach==3.1.1
 blinker==1.4
 click==6.7
 dominate==2.3.1
